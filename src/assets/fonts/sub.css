@@ -1,0 +1,111 @@
+ul li {
+  padding: 0.5rem 0 0 0;
+}
+.cir-avata img{
+  height: 100%;
+}
+.h-modal {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+}
+.h-modal.active {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.admission a:has(>img){
+  --tw-aspect-h: 10;
+  --tw-aspect-w: 16;
+}
+.all-service ul li {
+  margin: 0.5rem 0 0 0;
+}
+.cate-news ul li {
+  margin: 0.5rem 0 0 0;
+}
+.warn ul {
+  list-style: disc;
+  padding: 0 0 0 1.25rem;
+  font-size: 0.875rem;
+}
+.warn ul li{
+  padding-top: 0.35rem
+}
+.info-menu >ul>li {
+  position: relative;
+  font-weight: 600;
+  color:#252525;
+}
+.info-menu  ul li>ul {
+  padding: 8px 0;
+  font-weight:400;
+  color: #454545;
+}
+.info-menu  ul li ul>li:hover {
+  color:red;
+}
+.info-menu  ul li>span {
+  position:absolute;
+  top:0.625rem;
+  right:0;
+}
+@media(min-width: 1280px){
+  tbody th {
+    text-align: left;
+    padding: 0.375rem 0 0.375rem 0;
+    min-width: 12.1875rem;
+  }
+}
+@media(max-width: 1280px){
+  tbody th {
+    text-align: left;
+    padding: 0.25rem 0 0.25rem 0;
+    min-width: 10rem;
+  }
+}
+
+.check-radio .circle {
+  position: relative;
+  border: 1px solid #888888;
+  background: #EBEBEB;
+}
+.check-radio input:checked ~ .circle {
+    border: 1px solid #F44336;
+}
+.check-radio .circle::after {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 100%;
+    background: linear-gradient(91.8deg, #F44336 0%, #C62828 100%);
+    border-radius: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    display: none;
+}
+.check-radio input:checked ~ .circle::after {
+    display: block;
+}
+.check-radio .circle::after {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 100%;
+    background: linear-gradient(91.8deg, #F44336 0%, #C62828 100%);
+    border-radius: 40px;
+    position: absolute;
+    top: 50%;
+    left: 51%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    display: none;
+}
