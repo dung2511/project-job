@@ -1,0 +1,65 @@
+.nav-menu li a.active {
+    background: #e5e7eb;
+}
+.nav-menu li{
+    position: relative;
+}
+.nav-menu li ul.nav-menu {
+    display: none;
+    padding-left: 1.5rem;
+}
+.nav-menu .btn-dropdown-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 41.5px;
+    height: 41.5px;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #374151;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+}
+.nav-menu .btn-dropdown-menu.open {
+    -webkit-transform: rotate(-180deg);
+    transform: rotate(-180deg);
+}
+.nav-menu .btn-dropdown-menu i{
+    color: #374151 !important;
+}
+.nav-menu .btn-dropdown-menu{
+    transform: unset;
+}
+.c-check input:checked+span {
+    background: #DD6B4D !important;
+    color: #fff;
+}
+.c-check input[disabled]+span {
+    opacity: 0.4;
+    pointer-events: none;
+}
+.c-check span {
+    cursor: pointer;
+}
+.profile-item input:checked+.text {
+    background: #d20013;
+    color: #fff;
+}
+.header.fixed{
+    z-index: 11;
+}
+.footer-middle .address i{
+    width: 27px;
+    text-align: center;
+}
+.footer-middle .address .company_name{
+    font-size: 20px;
+}

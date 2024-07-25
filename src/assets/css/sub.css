@@ -1,0 +1,219 @@
+.cir-avata img {
+  height: 100%;
+}
+.h-modal {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+}
+.h-modal.active {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.admission a:has(> img) {
+  --tw-aspect-h: 10;
+  --tw-aspect-w: 16;
+}
+.all-service ul li {
+  margin: 0.5rem 0 0 0;
+}
+.cate-news ul li {
+  margin: 0.5rem 0 0 0;
+}
+.warn ul {
+  list-style: disc;
+  padding: 0 0 0 1.25rem;
+  font-size: 0.875rem;
+}
+.warn ul li {
+  padding-top: 0.35rem;
+}
+.menu-info > ul > li {
+  position: relative;
+  font-weight: 600;
+  color: #252525;
+}
+.menu-info ul li > ul {
+  padding: 8px 0;
+  font-weight: 400;
+  color: #454545;
+}
+.menu-info ul li ul > li:hover {
+  color: var(--cl-text-main);
+}
+.menu-info ul li > span {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  right: 0;
+}
+.menu-info ul li > span > i {
+  transition: all 0.3s ease-in-out;
+}
+.menu-info ul li > span {
+  top: 0;
+  width: 20px;
+  height: 20px;
+}
+@media (min-width: 1020px) {
+}
+@media (max-width: 1020px) {
+}
+@media (min-width: 1280px) {
+  tbody th {
+    text-align: left;
+    padding: 0.375rem 0 0.375rem 0;
+    min-width: 12.1875rem;
+  }
+}
+@media (max-width: 1280px) {
+  tbody th {
+    text-align: left;
+    padding: 0.25rem 0 0.25rem 0;
+    min-width: 10rem;
+  }
+}
+.check-radio .circle {
+  position: relative;
+  border: 1px solid #888888;
+  background: #ebebeb;
+}
+.check-radio input:checked ~ .circle {
+  border: 1px solid var(--border-main);
+}
+.check-radio .circle::after {
+  content: "";
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 100%;
+  background: var(--cl-bg-main);
+  border-radius: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  display: none;
+}
+.check-radio input:checked ~ .circle::after {
+  display: block;
+}
+.check-radio .circle::after {
+  content: "";
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 100%;
+  background: var(--cl-bg-main);
+  border-radius: 40px;
+  position: absolute;
+  top: 50%;
+  left: 51%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  display: none;
+}
+.ip-op-0 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+.form-status__all {
+  height: 1.5625rem;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.form-status__all input:checked ~ .button {
+  background: var(--cl-bg-main);
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+.form-status__all .button {
+  width: 3.1875rem;
+  height: 100%;
+  border-radius: 55px;
+  background: #ebebeb;
+  display: block;
+  position: relative;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+.form-status__all .button::before {
+  content: "";
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 100%;
+  background: #fff;
+  position: absolute;
+  top: 50%;
+  left: 0.125rem;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+.form-status__all input:checked ~ .button::before {
+  left: 1.6875rem;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+/* sidebar */
+@media (min-width: 1024px) {
+  .show-sidebar {
+    display: none !important;
+  }
+}
+@media (max-width: 1023px) {
+  .over-lay-sidebar.show {
+    right: 0 !important;
+  }
+}
+@media (max-width: 1023px) {
+  aside.sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 100;
+    overflow-y: auto;
+    max-width: min(350px, 90%);
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    padding: 1rem;
+  }
+}
+@media (max-width: 1023px) {
+  aside.sidebar.active {
+    left: 0;
+  }
+}
+.text-shadow {
+  text-shadow: 0.4px 0.4px #d90909;
+}
+.tabcontent {
+  display: none;
+}
+.tabcontent.active {
+  display: block;
+}
+.step-add-cart.active > p {
+  background: #dd6b4d;
+  color: white;
+}
+.step-add-cart.active > span {
+  color: #252525;
+}
