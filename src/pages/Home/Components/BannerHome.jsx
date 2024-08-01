@@ -1,7 +1,7 @@
 import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { firestore } from "../../firebase.config";
+import { firestore } from "../../../firebase.config";
 import Select from "react-select";
 const BannerHome = () => {
   const [dataCareerCategory, setDataCareerCategory] = useState([]);
