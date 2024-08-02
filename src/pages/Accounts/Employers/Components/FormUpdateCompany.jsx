@@ -8,7 +8,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { Select } from "@mui/material";
+import { Box, CircularProgress, Select } from "@mui/material";
 import { Editor } from "@tinymce/tinymce-react";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
@@ -26,6 +26,7 @@ const FormUpdateCompany = ({ employerDetail }) => {
   const [phoneCompany, setPhoneCompany] = useState(null);
   const [imageCompany, setImageCompany] = useState(null);
   const [urlImageCompany, setUrlImageCompany] = useState(null);
+  const [listCity, setListCity] = useState(null);
   const editorRef = useRef();
   const fetchDataPersonalSize = async () => {
     try {
@@ -39,9 +40,24 @@ const FormUpdateCompany = ({ employerDetail }) => {
       console.log(error);
     }
   };
+  const fetchDataCity = async () => {
+    try {
+      const q = query(collection(firestore, "cities"));
+      if (!q.empty) {
+        const categories = onSnapshot(q, (querySnapshot) => {
+          setListCity(querySnapshot.docs.map((doc) => doc.data()));
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleImageUpload = async () => {
     if (imageCompany == null) return;
-    const storageRef = ref(storage, `Employers/` + v4() + `${imageCompany.name}`);
+    const storageRef = ref(
+      storage,
+      `Employers/` + v4() + `${imageCompany.name}`
+    );
     const snapshot = await uploadBytes(storageRef, imageCompany);
     const url = await getDownloadURL(snapshot.ref);
     return url;
@@ -53,6 +69,7 @@ const FormUpdateCompany = ({ employerDetail }) => {
     }
   };
   useEffect(() => {
+    fetchDataCity();
     fetchDataPersonalSize();
   }, []);
   const handleChangeEditor = (content) => {
@@ -75,7 +92,7 @@ const FormUpdateCompany = ({ employerDetail }) => {
                 personalSize == null
                   ? employerDetail.personalSize
                   : personalSize,
-              // cityWork: cityWork == null ? employerDetail.cityWork : cityWork,
+              cityWork: cityWork == null ? employerDetail.cityWork : cityWork,
               addressCompany:
                 addressCompany == null
                   ? employerDetail.addressCompany
@@ -103,7 +120,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
       }
     });
   };
-
   return (
     <form className="info-acc" onSubmit={handleUpdateCompany}>
       <div className="xl:max-w-[53.9375rem] w-full py-4 border-b border-solid last:border-none">
@@ -178,71 +194,18 @@ const FormUpdateCompany = ({ employerDetail }) => {
                 <option value={"Chọn quận/huyện"} disabled={true}>
                   Chọn quận/huyện
                 </option>
-                <option value="2706">Hà Nội</option>
-                <option value="2707">Toàn Quốc</option>
-                <option value="2708">Bình Định</option>
-                <option value="2709">Miền Bắc</option>
-                <option value="2710">Hồ Chí Minh</option>
-                <option value="2711">Phú Thọ</option>
-                <option value="2712">Miền Nam</option>
-                <option value="2713">Đồng Nai</option>
-                <option value="2714">Gia Lai</option>
-                <option value="2715">Bến Tre</option>
-                <option value="2716">Thanh Hóa</option>
-                <option value="2717">An Giang</option>
-                <option value="2718">Hưng Yên</option>
-                <option value="2719">Khánh Hòa</option>
-                <option value="2720">Thái Bình</option>
-                <option value="2721">Vĩnh Long</option>
-                <option value="2722">Kiên Giang</option>
-                <option value="2723">Nghệ An</option>
-                <option value="2724">Bình Dương</option>
-                <option value="2725">Tiền Giang</option>
-                <option value="2726">Cà Mau</option>
-                <option value="2727">Long An</option>
-                <option value="2728">Cần Thơ</option>
-                <option value="2729">Sóc Trăng</option>
-                <option value="2730">Lâm Đồng</option>
-                <option value="2731">Miền Trung</option>
-                <option value="2732">Quảng Nam</option>
-                <option value="2733">Hải Dương</option>
-                <option value="2734">Hải Phòng</option>
-                <option value="2735">Bạc Liêu</option>
-                <option value="2736">Đắk Lắk</option>
-                <option value="2737">Điện Biên</option>
-                <option value="2738">Bắc Giang</option>
-                <option value="2739">Quảng Ninh</option>
-                <option value="2740">Thừa Thiên Huế</option>
-                <option value="2741">Đà Nẵng</option>
-                <option value="2742">Bình Thuận</option>
-                <option value="2743">Ninh Bình</option>
-                <option value="2744">Nam Định</option>
-                <option value="2745">Hà Tĩnh</option>
-                <option value="2746">Hà Nam</option>
-                <option value="2747">Bắc Ninh</option>
-                <option value="2748">Đồng Tháp</option>
-                <option value="2749">Bà Rịa - Vũng Tàu</option>
-                <option value="2750">Bắc Kạn</option>
-                <option value="2751">Hà Giang</option>
-                <option value="2752">Lạng Sơn</option>
-                <option value="2753">Lai Châu</option>
-                <option value="2754">Trà Vinh</option>
-                <option value="2755">Đắk Nông</option>
-                <option value="2756">Bình Phước</option>
-                <option value="2757">Vĩnh Phúc</option>
-                <option value="2758">Thái Nguyên</option>
-                <option value="2759">Yên Bái</option>
-                <option value="2760">Ninh Thuận</option>
-                <option value="2761">Quảng Bình</option>
-                <option value="2762">Lào Cai</option>
-                <option value="2763">Hòa Bình</option>
-                <option value="2764">Quảng Trị</option>
-                <option value="2765">Cao Bằng</option>
-                <option value="2766">Quảng Ngãi</option>
-                <option value="2767">Tây Ninh</option>
-                <option value="2768">Hậu Giang</option>
-                <option value="2769">Sơn La</option>
-                <option value="2770">Chưa cập nhật</option>
+                {listCity &&
+                  listCity.map((item, index) => {
+                    return (
+                      <option
+                        value={item.name}
+                        key={index}
+                        selected={employerDetail.cityWork === item.name}
+                      >
+                        {item.name}
+                      </option>
+                    );
+                  })}
               </select>
             </div>
           </div>
