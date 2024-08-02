@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { auth } from './firebase.config';
 import Login from './pages/Login/Login';
 import { AuthProvider } from './components/reducer/RequireAuth';
+import { UserProvider } from './hooks/UserProvider';
 export default function App() {
   const [user, setUser] = useState();
   useEffect(() => {
@@ -42,11 +43,11 @@ export default function App() {
             key={index}
             path={route.path}
             element={
-              // <AuthProvider>
-              <Layout>
-                <Page />
-              </Layout>
-              // </AuthProvider>
+              <UserProvider>
+                <Layout>
+                  <Page />
+                </Layout>
+              </UserProvider>
             } />
         })}
       </Routes>

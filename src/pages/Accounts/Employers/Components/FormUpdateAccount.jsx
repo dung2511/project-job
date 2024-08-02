@@ -6,7 +6,6 @@ import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-
 const FormUpdateAccount = ({ employerDetail }) => {
   const urlImageUserDefault =
     "https://firebasestorage.googleapis.com/v0/b/website-job-21a07.appspot.com/o/Images%2Fuser_profile_default.png?alt=media&token=e0db52f4-0be5-42a2-a1be-c40da07929c1";
