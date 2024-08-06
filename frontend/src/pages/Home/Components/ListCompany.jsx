@@ -72,7 +72,7 @@ const ListCompany = () => {
           {listDataCompany &&
             listDataCompany.map((item, index) => {
               return (
-                <SwiperSlide>
+                <SwiperSlide key={index}>
                   <div className="item-company h-full flex flex-col transition-all duration-500">
                     <Link
                       to="cong-ty-co-phan-thuc-pham-tnt"
