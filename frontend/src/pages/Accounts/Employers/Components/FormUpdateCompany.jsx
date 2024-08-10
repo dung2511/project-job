@@ -94,6 +94,7 @@ const FormUpdateCompany = ({ employerDetail }) => {
       setImageCompany(event.target.files[0]);
     }
   };
+  tesst
   useEffect(() => {
     fetchDataCity();
     fetchDataPersonalSize();
