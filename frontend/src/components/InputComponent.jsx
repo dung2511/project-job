@@ -12,19 +12,14 @@ const InputComponent = ({ value, name, label, onChange }) => {
     });
   };
   return (
-    <Box
-      sx={{
-        "& > :not(style)": { m: 1, width: "25ch" },
-      }}
-      noValidate
-      autoComplete="off"
-    >
+    <Box sx={{ width: 1 }} autoComplete="off">
       <TextField
+        fullWidth
         onChange={handleChange}
         id={`outlined` + `${name}`}
         label={label}
         name={name}
-        value={value}
+        defaultValue={value}
         variant="outlined"
       />
     </Box>

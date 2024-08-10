@@ -1,13 +1,14 @@
 import {
+  addDoc,
   collection,
-  documentId,
+  doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
   startAt,
-  where,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { auth, firestore } from "../../../firebase.config";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -18,7 +19,12 @@ import { DatePicker } from "@mui/x-date-pickers";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
 import SelectComponent from "../../../components/SelectComponent";
 import InputComponent from "../../../components/InputComponent";
+import { Editor } from "@tinymce/tinymce-react";
+import { v4 } from "uuid";
+import { createSlug } from "../../../components/createSlug";
 const CreatePost = () => {
+  const [employerDetail, setEmployerDetail] = useState(null);
+  const editorRef = useRef();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     positionJob: "",
@@ -39,6 +45,12 @@ const CreatePost = () => {
     quantity: "",
     workplace: "",
   });
+  const handleEditorChange = (content, editorName) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [editorName]: content,
+    }));
+  };
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevFormData) => ({
@@ -47,8 +59,14 @@ const CreatePost = () => {
     }));
   };
   const checkAuth = async () => {
-    auth.onAuthStateChanged((user) => {
-      if (user == null) {
+    auth.onAuthStateChanged(async (user) => {
+      if (user != null) {
+        const docRef = doc(firestore, "Employers", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setEmployerDetail(docSnap.data());
+        }
+      } else {
         navigate("/");
         toast.error("Vui lòng đăng nhập tài khoản nhà tuyển dụng", {
           position: "top-right",
@@ -97,13 +115,25 @@ const CreatePost = () => {
           });
           return;
         }
+        if (Number(formData.minSalary) <= 10000) {
+          toast.error("Mức lương tối thiểu phải lớn hơn 10.000đ !!", {
+            position: "top-right",
+          });
+          return;
+        }
+        if (isNaN(formData.minSalary) && isNaN(formData.maxSalary)) {
+          toast.error("Mức lương phải là số !!", {
+            position: "top-right",
+          });
+          return;
+        }
         if (formData.maxSalary == "") {
           toast.error("Vui lòng nhập mức lương tối đa !!", {
             position: "top-right",
           });
           return;
         }
-        if (Number(formData.maxSalary) <= Number(formData.maxSalary)) {
+        if (Number(formData.maxSalary) <= Number(formData.minSalary)) {
           toast.error("Mức lương tối đa phải lớn hơn mức lương tối thiểu !!", {
             position: "top-right",
           });
@@ -152,6 +182,40 @@ const CreatePost = () => {
         });
         return;
       }
+      const slug = createSlug(formData.positionJob) + v4();
+      const cleanedFormData = {
+        slug: slug,
+        image: employerDetail.imageCompany,
+        nameCompany: employerDetail.nameCompany,
+        positionJob: formData.positionJob || "",
+        levelJob: formData.levelJob || "",
+        careerJob: formData.careerJob || "",
+        workJob: formData.workJob || "",
+        experienceJob: formData.experienceJob || "",
+        minSalary: formData.minSalary || 0,
+        maxSalary: formData.maxSalary || 0,
+        unit: formData.unit || 1,
+        salaryNegotiable: formData.salaryNegotiable || 0,
+        descriptionJob: formData.descriptionJob || "",
+        candidateRequirement: formData.candidateRequirement || "",
+        benefit: formData.benefit || "",
+        timeWork: formData.timeWork || "",
+        timeCreated: formData.timeCreated
+          ? formData.timeCreated.toDate()
+          : new Date(),
+        expirationDate: formData.expirationDate
+          ? formData.expirationDate.toDate()
+          : new Date(),
+        quantity: formData.quantity || 0,
+        workplace: formData.workplace || "",
+      };
+      await addDoc(collection(firestore, "Posts"), {
+        employerId: user.uid,
+        ...cleanedFormData,
+      });
+      toast.success("Đăng bài thành công !!", {
+        position: "top-right",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -278,13 +342,11 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Chức danh <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <input
-                    type="text"
-                    name="positionJob"
-                    defaultValue={formData.positionJob}
+                  <InputComponent
+                    name={"positionJob"}
                     onChange={handleInputChange}
-                    placeholder="Nhập chức danh công việc"
-                    className="form-control border-solid border p-3 rounded w-full border-[#ebebeb]"
+                    value={formData.positionJob}
+                    label={"Nhập chức danh công việc"}
                   />
                 </div>
                 <div className="form-group mb-3">
@@ -342,7 +404,7 @@ const CreatePost = () => {
                     Mức lương<span className="text-[#DD6B4D]">*</span>
                   </p>
                   <div className="import-wage flex flex-wrap">
-                    <div className="flex items-center">
+                    <div className="flex items-center mr-4">
                       <span style={{ marginRight: "5px" }}>Từ: </span>
                       <InputComponent
                         name={"minSalary"}
@@ -351,7 +413,7 @@ const CreatePost = () => {
                         label={"Lương tối thiểu"}
                       />
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center mr-4">
                       <span style={{ marginRight: "5px" }}>Đến: </span>
                       <InputComponent
                         name={"maxSalary"}
@@ -360,7 +422,7 @@ const CreatePost = () => {
                         label={"Lương tối đa"}
                       />
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center mr-4 min-w-[6rem]">
                       <SelectComponent
                         name={"unit"}
                         value={formData.unit}
@@ -389,10 +451,23 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Mô tả công việc <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <textarea
-                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
-                    placeholder="Thông tin cho vị trí công việc yêu cầu, trách nhiệm mà ứng viên có thể đảm nhận khi làm việc ở công ty"
-                  ></textarea>
+                  <Editor
+                    apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
+                    onInit={(evt, editor) => (editorRef.current = editor)}
+                    onEditorChange={(content) =>
+                      handleEditorChange(content, "descriptionJob")
+                    }
+                    init={{
+                      placeholder: "Hãy viết gì đó ở đây...",
+                      height: 300,
+                      width: "100%",
+                      menubar: false,
+                      plugins:
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                      toolbar:
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                    }}
+                  />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -401,11 +476,23 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Yêu cầu ứng viên <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <textarea
-                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
-                    placeholder="Nhập mô tả công việc"
-                    s
-                  ></textarea>
+                  <Editor
+                    apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
+                    onInit={(evt, editor) => (editorRef.current = editor)}
+                    onEditorChange={(content) =>
+                      handleEditorChange(content, "candidateRequirement")
+                    }
+                    init={{
+                      placeholder: "Hãy viết gì đó ở đây...",
+                      height: 300,
+                      width: "100%",
+                      menubar: false,
+                      plugins:
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                      toolbar:
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                    }}
+                  />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -414,11 +501,23 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Quyền lợi <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <textarea
-                    placeholder="Nhập quyền lợi"
-                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
-                  ></textarea>
-
+                  <Editor
+                    apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
+                    onInit={(evt, editor) => (editorRef.current = editor)}
+                    onEditorChange={(content) =>
+                      handleEditorChange(content, "benefit")
+                    }
+                    init={{
+                      placeholder: "Hãy viết gì đó ở đây...",
+                      height: 300,
+                      width: "100%",
+                      menubar: false,
+                      plugins:
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                      toolbar:
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                    }}
+                  />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -427,10 +526,23 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Thời gian làm việc <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <textarea
-                    placeholder="Nhập thời gian làm việc"
-                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
-                  ></textarea>
+                  <Editor
+                    apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
+                    onInit={(evt, editor) => (editorRef.current = editor)}
+                    onEditorChange={(content) =>
+                      handleEditorChange(content, "timeWork")
+                    }
+                    init={{
+                      placeholder: "Hãy viết gì đó ở đây...",
+                      height: 300,
+                      width: "100%",
+                      menubar: false,
+                      plugins:
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                      toolbar:
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                    }}
+                  />
 
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
@@ -444,6 +556,7 @@ const CreatePost = () => {
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
+                        name="timeCreated"
                         className="w-full"
                         value={formData.timeCreated}
                         onChange={handleInputChange}
@@ -457,6 +570,7 @@ const CreatePost = () => {
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
+                        name="expirationDate"
                         className="w-full"
                         value={formData.expirationDate}
                         onChange={handleInputChange}
@@ -468,10 +582,11 @@ const CreatePost = () => {
                       Số lượng cần tuyển
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
-                    <input
-                      type="text"
-                      className="form-control w-full rounded border border-solid p-3 border-[#ebebeb]"
-                      placeholder="Vui lòng nhập"
+                    <InputComponent
+                      name={"quantity"}
+                      onChange={handleInputChange}
+                      value={formData.quantity}
+                      label={"Số lượng cần tuyển"}
                     />
                   </div>
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
@@ -479,23 +594,13 @@ const CreatePost = () => {
                       Hình thức làm việc
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
-                    <select
-                      className="form-control rounded w-full border border-solid p-3 border-[#ebebeb]"
-                      defaultValue={"Chọn"}
-                    >
-                      <option value={"Chọn"} disabled={true}>
-                        Chọn
-                      </option>
-
-                      {workType &&
-                        workType.map((item) => {
-                          return (
-                            <option value={item.id} key={item.id}>
-                              {item.name}
-                            </option>
-                          );
-                        })}
-                    </select>
+                    <SelectComponent
+                      name={"workplace"}
+                      option={workType}
+                      value={formData.workplace}
+                      onChange={handleInputChange}
+                      label={"Hình thức làm việc"}
+                    />
                   </div>
                 </div>
               </div>

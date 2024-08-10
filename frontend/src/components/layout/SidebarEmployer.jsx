@@ -1,13 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const SidebarEmployer = () => {
   return (
     <ul className="nav-menu p-2 border border-solid border-[#EBEBEB] rounded-[10px]">
       <li className="mb-2 last:mb-0">
-        <Link
+        <NavLink
           to={"/thong-tin-tai-khoan-nha-tuyen-dung"}
-          className="flex items-center pl-2 py-2 text-gray-700 rounded-md hover:bg-gray-200 active"
+          className="flex items-center pl-2 py-2 text-gray-700 rounded-md hover:bg-gray-200"
         >
           <svg
             className="mr-2"
@@ -69,12 +69,12 @@ const SidebarEmployer = () => {
             ></rect>
           </svg>
           <span className="font-medium">Thông tin tài khoản</span>
-        </Link>
+        </NavLink>
       </li>
       <li className="mb-2 last:mb-0">
-        <Link
-          to={'/danh-sach-tin-dang'}
-          className="flex items-center pl-2 py-2 text-gray-700 rounded-md hover:bg-gray-200   "
+        <NavLink
+          to={"/danh-sach-tin-dang"}
+          className="flex items-center pl-2 py-2 text-gray-700 rounded-md hover:bg-gray-200 "
         >
           <svg
             className="mr-2 shrink-0"
@@ -123,15 +123,15 @@ const SidebarEmployer = () => {
             ></path>
           </svg>
           <span className="font-medium">Quản lý tin đăng</span>
-        </Link>
+        </NavLink>
         <ul className="nav-menu mt-2 ">
           <li className="mb-2 last:mb-0">
-            <Link
+            <NavLink
               href={"/dang-tin"}
               className="flex items-center pl-2 py-2 text-gray-700 rounded-md hover:bg-gray-200"
             >
               <span className="font-medium">Đăng tin</span>
-            </Link>
+            </NavLink>
           </li>
           <li className="mb-2 last:mb-0">
             <a

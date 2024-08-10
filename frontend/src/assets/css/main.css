@@ -317,7 +317,6 @@ select {
 .form-all input,
 .form-all select {
   width: 100%;
-  font-weight: 600;
   color: var(--cl-text-main-2);
   padding: 1rem;
   border-radius: 5px;

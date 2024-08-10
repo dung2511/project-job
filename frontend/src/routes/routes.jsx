@@ -18,6 +18,7 @@ import CandidateManagement from "../pages/Accounts/Employers/CandidateManagement
 import ListPost from "../pages/Accounts/Employers/ListPost";
 import CreatePost from "../pages/Accounts/Employers/CreatePost";
 import Contact from "../pages/Contact/Contact";
+import DetailRecruitment from "../pages/Recruitment/DetailRecruitment";
 
 const publicRoutes = [
   {
@@ -27,6 +28,10 @@ const publicRoutes = [
   {
     path: "/tuyen-dung",
     component: Recruitment,
+  },
+  {
+    path: "/tuyen-dung/:slug",
+    component: DetailRecruitment,
   },
   {
     path: "/tin-tuc",

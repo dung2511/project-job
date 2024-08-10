@@ -13,10 +13,11 @@ const SelectComponent = ({ value, name, label, option, onChange }) => {
     });
   };
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: 1 }}>
       <FormControl fullWidth>
         <InputLabel id={`${name}` + `-select-label`}>{label}</InputLabel>
         <Select
+          fullWidth
           className="w-full"
           labelId={`${name}` + `-select-label`}
           id="demo-simple-select"

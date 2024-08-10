@@ -1,6 +1,33 @@
-import React from "react";
+import { Box, CircularProgress } from "@mui/material";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { firestore } from "../../firebase.config";
 
 const DetailRecruitment = () => {
+  const { slug } = useParams();
+  const [dataDetail, setDataDetail] = useState(null);
+  const fetchDataDetail = async () => {
+    try {
+      const docRef = doc(firestore, "Posts", slug);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setDataDetail(docSnap.data());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchDataDetail();
+  }, [dataDetail]);
+  if (!dataDetail) {
+    return (
+      <Box className="flex items-center justify-center">
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <section className="py-6 xl:py-10 section-job__detail">
       <div className="container">
@@ -134,7 +161,11 @@ const DetailRecruitment = () => {
                     vấn.
                   </div>
                 </div>
-                <div className="tabcontent" data-target="tab-job" id="tab-job-2">
+                <div
+                  className="tabcontent"
+                  data-target="tab-job"
+                  id="tab-job-2"
+                >
                   <div className="xl:mt-8 mt-6 bg-white lg:p-8 p-4 rounded-md shadow-[0px_4px_10px_rgba(0,0,0,.3)]">
                     <h3 className="font-semibold xl:text-2xl text-lg text-[var(--cl-text-main-2)] uppercase mb-4">
                       Công ty Luật TNHH Minh Tín
@@ -236,7 +267,11 @@ const DetailRecruitment = () => {
                     </div>
                   </div>
                 </div>
-                <div className="tabcontent" data-target="tab-job" id="tab-job-3">
+                <div
+                  className="tabcontent"
+                  data-target="tab-job"
+                  id="tab-job-3"
+                >
                   <p className="title font-bold text-[#000] text-[1.25rem] mb-1">
                     Thông tin liên hệ
                   </p>
@@ -269,7 +304,9 @@ const DetailRecruitment = () => {
               </p>
               <div className="p-4 content lg:p-6">
                 <div className="mb-5 item last:mb-0">
-                  <p className="title font-bold text-[#000] mb-2">Nơi làm việc</p>
+                  <p className="title font-bold text-[#000] mb-2">
+                    Nơi làm việc
+                  </p>
 
                   <p className="font-medium lg:text-[0.875rem] text-[#000]">
                     Bình Phước

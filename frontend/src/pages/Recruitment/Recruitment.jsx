@@ -1,7 +1,35 @@
-import * as React from "react";
+import { collection, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { firestore } from "../../firebase.config";
+import { Box, CircularProgress } from "@mui/material";
 
 const Recruitment = () => {
+  const [listData, setListData] = useState();
+  const [loading, setLoading] = useState(true);
+  const fetchDataRecruitment = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, "Posts"));
+      const data = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setListData(data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchDataRecruitment();
+  }, []);
+  if (loading) {
+    return (
+      <Box className="flex items-center justify-center">
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <>
       <div className="xl:py-10 py-6 shadow-[0px_2px_25px_0px_rgba(0,0,0,.1)]">
@@ -1083,66 +1111,75 @@ const Recruitment = () => {
                 </div>
               </div>
               <div className="list-job results_filter_post mt-4">
-                <div className="item-filter block md:flex flex-wrap bg-[#F7F7F7] border border-solid border-[#A8A8A8] rounded-lg xl:px-5 xl:py-6 p-4 mb-4 relative">
-                  <div className="flex-1 items-center block mb-4 sm:flex md:mr-6 md:mb-0">
-                    <div className="avatar w-full sm:w-[110px] shrink-0 sm:mr-4 mb-2 sm:mb-0">
-                      <div className="img c-img pt-[100%] rounded overflow-hidden">
-                        <img
-                          loading="lazy"
-                          src="../theme/frontend/images/logo-viet-3.png"
-                          data-src="../theme/frontend/images/logo-viet-3.png"
-                          alt="Luật sư， Chuyên viên luật"
-                          title="Luật sư， Chuyên viên luật"
-                          className="img-fluid"
-                        />
+                {listData &&
+                  listData.map((item, index) => {
+                    console.log(item);
+                    return (
+                      <div
+                        key={index}
+                        className="item-filter block md:flex flex-wrap bg-[#F7F7F7] border border-solid border-[#A8A8A8] rounded-lg xl:px-5 xl:py-6 p-4 mb-4 relative"
+                      >
+                        <div className="flex-1 items-center block mb-4 sm:flex md:mr-6 md:mb-0">
+                          <div className="avatar w-full sm:w-[110px] shrink-0 sm:mr-4 mb-2 sm:mb-0">
+                            <div className="img c-img pt-[100%] rounded overflow-hidden">
+                              <img
+                                loading="lazy"
+                                src={item.image}
+                                alt={item.positionJob}
+                                title={item.positionJob}
+                                className="img-fluid"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1 info-content">
+                            <p className="name font-semibold text-[#000] text-[0.875rem] mb-2">
+                              {item.positionJob}
+                            </p>
+                            <p className="company text-[#7d7d7d] text-[.875rem] mb-2">
+                              {item.nameCompany}
+                            </p>
+                            <ul className="flex flex-wrap lis-info__detail ">
+                              <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
+                                <i className="mr-1 fa-regular fa-user"></i>
+                                Vị trí: {item.levelJob}
+                              </li>
+                              <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
+                                <i className="fa-regular fa-file-lines mr-1"></i>
+                                Kinh nghiệm: {item.experienceJob}
+                              </li>
+                            </ul>
+                            <div className="flex flex-wrap work-position">
+                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
+                                {item.minSalary} - {item.maxSalary}
+                              </div>
+                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
+                                <span>{item.workJob}</span>
+                              </div>
+                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
+                                {item.timeCreated.seconds}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <Link
+                          to={`/tuyen-dung/${item.slug}`}
+                          title="Xem chi tiết"
+                          className="btn btn-view mt-auto py-2 font-medium rounded border border-solid border-[#1C4B82] text-[#1C4B82] bg-[#DBECFF] hover:bg-[#1C4B82] hover:text-white shrink-0"
+                        >
+                          Xem chi tiết
+                        </Link>
+                        <Link
+                          to={"/"}
+                          title="Yêu thích"
+                          favourite-user=""
+                          className="btn-favourite  absolute z-[1] xl:top-6 xl:right-5 top-4 right-4 text-[#000] text-[1.25rem]"
+                        >
+                          <i className="fa-regular fa-bookmark"></i>
+                        </Link>
                       </div>
-                    </div>
-                    <div className="flex-1 info-content">
-                      <p className="name font-semibold text-[#000] text-[0.875rem] mb-2">
-                        Luật sư， Chuyên viên luật
-                      </p>
-                      <p className="company text-[#7d7d7d] text-[.875rem] mb-2">
-                        Công ty Luật TNHH Minh Tín
-                      </p>
-                      <ul className="flex flex-wrap lis-info__detail ">
-                        <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
-                          <i className="mr-1 fa-regular fa-user"></i>
-                          Vị trí: Phó giám đốc
-                        </li>
-                        <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
-                          <i className="fa-regular fa-file-lines mr-1"></i>
-                          Kinh nghiệm: 3 năm
-                        </li>
-                      </ul>
-                      <div className="flex flex-wrap work-position">
-                        <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                          8M - 13M
-                        </div>
-                        <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                          <span>Bình Phước</span>
-                        </div>
-                        <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                          20/05/2024 08:39
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to="luat-su-chuyen-vien-luat-1627"
-                    title="Xem chi tiết"
-                    className="btn btn-view mt-auto py-2 font-medium rounded border border-solid border-[#1C4B82] text-[#1C4B82] bg-[#DBECFF] hover:bg-[#1C4B82] hover:text-white shrink-0"
-                  >
-                    Xem chi tiết
-                  </Link>
-                  <Link
-                    to={"/"}
-                    title="Yêu thích"
-                    favourite-user=""
-                    className="btn-favourite  absolute z-[1] xl:top-6 xl:right-5 top-4 right-4 text-[#000] text-[1.25rem]"
-                  >
-                    <i className="fa-regular fa-bookmark"></i>
-                  </Link>
-                </div>
+                    );
+                  })}
+
                 <div className="pagination" pagination-filter="">
                   <strong>1</strong>
                   <Link to="https://joblaw.vn/tuyen-dung?page=2" data-page="2">
