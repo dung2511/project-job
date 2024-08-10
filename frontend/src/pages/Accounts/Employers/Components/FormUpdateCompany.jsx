@@ -5,23 +5,15 @@ import {
   doc,
   getDoc,
   onSnapshot,
-<<<<<<< HEAD
   orderBy,
   query,
   startAt,
   updateDoc,
 } from "firebase/firestore";
-=======
-  query,
-  updateDoc,
-} from "firebase/firestore";
-import { Box, CircularProgress, Select } from "@mui/material";
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
 import { Editor } from "@tinymce/tinymce-react";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-<<<<<<< HEAD
 import { createSlug } from "../../../../components/createSlug";
 import InputComponent from "../../../../components/InputComponent";
 import SelectComponent from "../../../../components/SelectComponent";
@@ -65,26 +57,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
         orderBy("id"),
         startAt(0)
       );
-=======
-const FormUpdateCompany = ({ employerDetail }) => {
-  const urlImageUserDefault =
-    "https://firebasestorage.googleapis.com/v0/b/website-job-21a07.appspot.com/o/Images%2Fuser_profile_default.png?alt=media&token=e0db52f4-0be5-42a2-a1be-c40da07929c1";
-  const [queryQersonalSize, setQueryPersonalSize] = useState(null);
-  const [taxCode, setTaxCode] = useState(null);
-  const [nameCompany, setNameCompany] = useState(null);
-  const [personalSize, setPersonalSize] = useState(null);
-  const [cityWork, setCityWork] = useState(null);
-  const [addressCompany, setAddressCompany] = useState(null);
-  const [introduceCompany, setIntroduceCompay] = useState(null);
-  const [phoneCompany, setPhoneCompany] = useState(null);
-  const [imageCompany, setImageCompany] = useState(null);
-  const [urlImageCompany, setUrlImageCompany] = useState(null);
-  const [listCity, setListCity] = useState(null);
-  const editorRef = useRef();
-  const fetchDataPersonalSize = async () => {
-    try {
-      const q = query(collection(firestore, "personel_size"));
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
       if (!q.empty) {
         const categories = onSnapshot(q, (querySnapshot) => {
           setQueryPersonalSize(querySnapshot.docs.map((doc) => doc.data()));
@@ -137,7 +109,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
           const url = await handleImageUpload();
           const docRef = doc(firestore, "Employers", user.uid);
           const docSnap = await getDoc(docRef);
-<<<<<<< HEAD
           const slug =
             createSlug(employerDetail.nameCompany ?? formData.nameCompany) +
             "-" +
@@ -157,31 +128,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
               imageCompany: url || employerDetail.imageCompany,
               introduceCompany:
                 formData.introduceCompany || employerDetail.introduceCompany,
-=======
-          if (docSnap.exists()) {
-            let updatedData = {
-              nameCompany:
-                nameCompany == null ? employerDetail.nameCompany : nameCompany,
-              taxCode: taxCode == null ? employerDetail.taxCode : taxCode,
-              personalSize:
-                personalSize == null
-                  ? employerDetail.personalSize
-                  : personalSize,
-              cityWork: cityWork == null ? employerDetail.cityWork : cityWork,
-              addressCompany:
-                addressCompany == null
-                  ? employerDetail.addressCompany
-                  : addressCompany,
-              phoneCompany:
-                phoneCompany == null
-                  ? employerDetail.phoneCompany
-                  : phoneCompany,
-              imageCompany: url ? url : employerDetail.imageCompany,
-              // introduceCompany:
-              //   introduceCompany == null
-              //     ? employerDetail.introduceCompany
-              //     : introduceCompany,
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
             };
             await updateDoc(docRef, updatedData);
             toast.success("Cập nhật thông tin thành công !!", {
@@ -204,22 +150,12 @@ const FormUpdateCompany = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Mã số thuế <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center  bg-[#F0F0F3]">
               <InputComponent
                 name={"taxCode"}
                 onChange={handleInputChange}
                 value={employerDetail.taxCode}
                 label={"Mã số thuế"}
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <input
-                onChange={(e) => setTaxCode(e.target.value)}
-                defaultValue={employerDetail?.taxCode}
-                type="text"
-                className="bg-[#F0F0F3]"
-                placeholder="0103293209"
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
               />
             </div>
           </div>
@@ -227,22 +163,12 @@ const FormUpdateCompany = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Tên công ty <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center bg-[#F0F0F3]">
               <InputComponent
                 name={"nameCompany"}
                 onChange={handleInputChange}
                 value={employerDetail.nameCompany}
                 label={"Tên công ty"}
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <input
-                type="text"
-                onChange={(e) => setNameCompany(e.target.value)}
-                defaultValue={employerDetail?.companyName}
-                className="bg-[#F0F0F3]"
-                placeholder="Công ty TNHH ABC"
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
               />
             </div>
           </div>
@@ -250,7 +176,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Quy mô nhân sự <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center bg-[#F0F0F3]">
               <SelectComponent
                 name={"personalSize"}
@@ -259,38 +184,12 @@ const FormUpdateCompany = ({ employerDetail }) => {
                 onChange={handleInputChange}
                 label={"Quy mô nhân sự"}
               />
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <select
-                id="personel_size_id"
-                className="bg-[#F0F0F3]"
-                onChange={(e) => setPersonalSize(e.target.value)}
-                defaultValue={"Chọn quy mô nhân sự"}
-              >
-                <option value={"Chọn quy mô nhân sự"} disabled={true}>
-                  Chọn quy mô nhân sự
-                </option>
-                {queryQersonalSize &&
-                  queryQersonalSize.map((item, index) => {
-                    return (
-                      <option
-                        key={index}
-                        value={item.name}
-                        selected={employerDetail.personalSize === item.name}
-                      >
-                        {item.name}
-                      </option>
-                    );
-                  })}
-              </select>
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
             </div>
           </div>
           <div className="flex flex-wrap items-center mb-4">
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Địa điểm <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center  bg-[#F0F0F3]">
               <SelectComponent
                 name={"cityWork"}
@@ -299,52 +198,18 @@ const FormUpdateCompany = ({ employerDetail }) => {
                 onChange={handleInputChange}
                 label={"Địa điểm"}
               />
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <select
-                className="bg-[#F0F0F3]"
-                onChange={(e) => setCityWork(e.target.value)}
-                defaultValue={"Chọn quận/huyện"}
-              >
-                <option value={"Chọn quận/huyện"} disabled={true}>
-                  Chọn quận/huyện
-                </option>
-                {listCity &&
-                  listCity.map((item, index) => {
-                    return (
-                      <option
-                        value={item.name}
-                        key={index}
-                        selected={employerDetail.cityWork === item.name}
-                      >
-                        {item.name}
-                      </option>
-                    );
-                  })}
-              </select>
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
             </div>
           </div>
           <div className="flex flex-wrap items-center mb-4">
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Địa chỉ website Công ty <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center bg-[#F0F0F3]">
               <InputComponent
                 name={"addressCompany"}
                 onChange={handleInputChange}
                 value={employerDetail.addressCompany}
                 label={"Địa chỉ website Công ty"}
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <input
-                type="text"
-                defaultValue={employerDetail?.addressCompany}
-                onChange={(e) => setAddressCompany(e.target.value)}
-                className="bg-[#F0F0F3]"
-                placeholder="Số 19 Ngõ 68 Lưu Hữu Phước, Mỹ Đình 1, Nam Từ Liêm, Hà Nội"
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
               />
             </div>
           </div>
@@ -352,22 +217,12 @@ const FormUpdateCompany = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Số điện thoại cố định <span className=" text-[#D90909]">*</span>
             </p>
-<<<<<<< HEAD
             <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center bg-[#F0F0F3]">
               <InputComponent
                 name={"phoneCompany"}
                 onChange={handleInputChange}
                 value={employerDetail.phoneCompany}
                 label={"Số điện thoại cố định"}
-=======
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <input
-                type="text"
-                defaultValue={employerDetail?.phoneCompany}
-                onChange={(e) => setPhoneCompany(e.target.value)}
-                className="bg-[#F0F0F3]"
-                placeholder="0234 456 778"
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
               />
             </div>
           </div>
@@ -419,7 +274,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
           <p className="w-full lg:w-1/4 mb-2 lg:mb-0">Giới thiệu công ty</p>
           <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
             <Editor
-<<<<<<< HEAD
               key={editorKey}
               apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
               onInit={(evt, editor) => (editorRef.current = editor)}
@@ -427,16 +281,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
                 handleEditorChange(content, "introduceCompany")
               }
               initialValue={employerDetail.introduceCompany}
-=======
-              apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
-              onInit={(evt, editor) => (editorRef.current = editor)}
-              initialValue={
-                employerDetail?.introduceCompany
-                  ? employerDetail.introduceCompany
-                  : ""
-              }
-              // onEditorChange={handleChangeEditor}
->>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
               init={{
                 placeholder: "Hãy viết gì đó ở đây...",
                 height: 600,
