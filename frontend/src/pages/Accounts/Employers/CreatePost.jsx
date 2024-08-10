@@ -1,14 +1,25 @@
 import {
+<<<<<<< HEAD
   addDoc,
   collection,
   doc,
   getDoc,
+=======
+  collection,
+  documentId,
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
   onSnapshot,
   orderBy,
   query,
   startAt,
+<<<<<<< HEAD
 } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
+=======
+  where,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
 import { auth, firestore } from "../../../firebase.config";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -19,12 +30,16 @@ import { DatePicker } from "@mui/x-date-pickers";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
 import SelectComponent from "../../../components/SelectComponent";
 import InputComponent from "../../../components/InputComponent";
+<<<<<<< HEAD
 import { Editor } from "@tinymce/tinymce-react";
 import { v4 } from "uuid";
 import { createSlug } from "../../../components/createSlug";
 const CreatePost = () => {
   const [employerDetail, setEmployerDetail] = useState(null);
   const editorRef = useRef();
+=======
+const CreatePost = () => {
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     positionJob: "",
@@ -115,6 +130,7 @@ const CreatePost = () => {
           });
           return;
         }
+<<<<<<< HEAD
         if (Number(formData.minSalary) <= 10000) {
           toast.error("Mức lương tối thiểu phải lớn hơn 10.000đ !!", {
             position: "top-right",
@@ -127,13 +143,19 @@ const CreatePost = () => {
           });
           return;
         }
+=======
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
         if (formData.maxSalary == "") {
           toast.error("Vui lòng nhập mức lương tối đa !!", {
             position: "top-right",
           });
           return;
         }
+<<<<<<< HEAD
         if (Number(formData.maxSalary) <= Number(formData.minSalary)) {
+=======
+        if (Number(formData.maxSalary) <= Number(formData.maxSalary)) {
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
           toast.error("Mức lương tối đa phải lớn hơn mức lương tối thiểu !!", {
             position: "top-right",
           });
@@ -182,6 +204,7 @@ const CreatePost = () => {
         });
         return;
       }
+<<<<<<< HEAD
       const slug = createSlug(formData.positionJob) + v4();
       const cleanedFormData = {
         slug: slug,
@@ -216,6 +239,8 @@ const CreatePost = () => {
       toast.success("Đăng bài thành công !!", {
         position: "top-right",
       });
+=======
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
     } catch (error) {
       console.log(error);
     }
@@ -342,11 +367,21 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Chức danh <span className="text-[#DD6B4D]">*</span>
                   </p>
+<<<<<<< HEAD
                   <InputComponent
                     name={"positionJob"}
                     onChange={handleInputChange}
                     value={formData.positionJob}
                     label={"Nhập chức danh công việc"}
+=======
+                  <input
+                    type="text"
+                    name="positionJob"
+                    defaultValue={formData.positionJob}
+                    onChange={handleInputChange}
+                    placeholder="Nhập chức danh công việc"
+                    className="form-control border-solid border p-3 rounded w-full border-[#ebebeb]"
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                   />
                 </div>
                 <div className="form-group mb-3">
@@ -404,7 +439,11 @@ const CreatePost = () => {
                     Mức lương<span className="text-[#DD6B4D]">*</span>
                   </p>
                   <div className="import-wage flex flex-wrap">
+<<<<<<< HEAD
                     <div className="flex items-center mr-4">
+=======
+                    <div className="flex items-center">
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                       <span style={{ marginRight: "5px" }}>Từ: </span>
                       <InputComponent
                         name={"minSalary"}
@@ -413,7 +452,11 @@ const CreatePost = () => {
                         label={"Lương tối thiểu"}
                       />
                     </div>
+<<<<<<< HEAD
                     <div className="flex items-center mr-4">
+=======
+                    <div className="flex items-center">
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                       <span style={{ marginRight: "5px" }}>Đến: </span>
                       <InputComponent
                         name={"maxSalary"}
@@ -422,7 +465,11 @@ const CreatePost = () => {
                         label={"Lương tối đa"}
                       />
                     </div>
+<<<<<<< HEAD
                     <div className="flex items-center mr-4 min-w-[6rem]">
+=======
+                    <div className="flex items-center">
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                       <SelectComponent
                         name={"unit"}
                         value={formData.unit}
@@ -451,6 +498,7 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Mô tả công việc <span className="text-[#DD6B4D]">*</span>
                   </p>
+<<<<<<< HEAD
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
@@ -468,6 +516,12 @@ const CreatePost = () => {
                         "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
+=======
+                  <textarea
+                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
+                    placeholder="Thông tin cho vị trí công việc yêu cầu, trách nhiệm mà ứng viên có thể đảm nhận khi làm việc ở công ty"
+                  ></textarea>
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -476,6 +530,7 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Yêu cầu ứng viên <span className="text-[#DD6B4D]">*</span>
                   </p>
+<<<<<<< HEAD
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
@@ -493,6 +548,13 @@ const CreatePost = () => {
                         "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
+=======
+                  <textarea
+                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
+                    placeholder="Nhập mô tả công việc"
+                    s
+                  ></textarea>
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -501,6 +563,7 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Quyền lợi <span className="text-[#DD6B4D]">*</span>
                   </p>
+<<<<<<< HEAD
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
@@ -518,6 +581,13 @@ const CreatePost = () => {
                         "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
+=======
+                  <textarea
+                    placeholder="Nhập quyền lợi"
+                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
+                  ></textarea>
+
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
                   </p>
@@ -526,6 +596,7 @@ const CreatePost = () => {
                   <p className="font-semibold text-[#1C4B82] mb-2">
                     Thời gian làm việc <span className="text-[#DD6B4D]">*</span>
                   </p>
+<<<<<<< HEAD
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
@@ -543,6 +614,12 @@ const CreatePost = () => {
                         "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
+=======
+                  <textarea
+                    placeholder="Nhập thời gian làm việc"
+                    className="form-control w-full border-[#A8A8A8] border border-solid p-3 rounded bg-[#FCFCFC] h-[125px] editor"
+                  ></textarea>
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
 
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
                     (Bạn có thể nhập tối đa 5.000 ký tự)
@@ -556,7 +633,10 @@ const CreatePost = () => {
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
+<<<<<<< HEAD
                         name="timeCreated"
+=======
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                         className="w-full"
                         value={formData.timeCreated}
                         onChange={handleInputChange}
@@ -570,7 +650,10 @@ const CreatePost = () => {
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
+<<<<<<< HEAD
                         name="expirationDate"
+=======
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                         className="w-full"
                         value={formData.expirationDate}
                         onChange={handleInputChange}
@@ -582,11 +665,18 @@ const CreatePost = () => {
                       Số lượng cần tuyển
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
+<<<<<<< HEAD
                     <InputComponent
                       name={"quantity"}
                       onChange={handleInputChange}
                       value={formData.quantity}
                       label={"Số lượng cần tuyển"}
+=======
+                    <input
+                      type="text"
+                      className="form-control w-full rounded border border-solid p-3 border-[#ebebeb]"
+                      placeholder="Vui lòng nhập"
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                     />
                   </div>
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
@@ -594,6 +684,7 @@ const CreatePost = () => {
                       Hình thức làm việc
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
+<<<<<<< HEAD
                     <SelectComponent
                       name={"workplace"}
                       option={workType}
@@ -601,6 +692,25 @@ const CreatePost = () => {
                       onChange={handleInputChange}
                       label={"Hình thức làm việc"}
                     />
+=======
+                    <select
+                      className="form-control rounded w-full border border-solid p-3 border-[#ebebeb]"
+                      defaultValue={"Chọn"}
+                    >
+                      <option value={"Chọn"} disabled={true}>
+                        Chọn
+                      </option>
+
+                      {workType &&
+                        workType.map((item) => {
+                          return (
+                            <option value={item.id} key={item.id}>
+                              {item.name}
+                            </option>
+                          );
+                        })}
+                    </select>
+>>>>>>> 4bb4de4179fa6df349e45e1621a7d0d81d8e7398
                   </div>
                 </div>
               </div>
