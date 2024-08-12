@@ -19,6 +19,7 @@ import ListPost from "../pages/Accounts/Employers/ListPost";
 import CreatePost from "../pages/Accounts/Employers/CreatePost";
 import Contact from "../pages/Contact/Contact";
 import DetailRecruitment from "../pages/Recruitment/DetailRecruitment";
+import EditorPost from "../pages/Accounts/Employers/EditorPost";
 
 const publicRoutes = [
   {
@@ -101,6 +102,10 @@ const privateRoutes = [
     component: CreatePost,
   },
   {
+    path: "/sua-tin-dang/:id",
+    component: EditorPost,
+  },
+  {
     path: "/quan-ly-ung-vien",
     component: CandidateManagement,
   },
@@ -108,6 +113,5 @@ const privateRoutes = [
     path: "/danh-sach-tin-dang",
     component: ListPost,
   },
-  
 ];
 export { publicRoutes, privateRoutes };

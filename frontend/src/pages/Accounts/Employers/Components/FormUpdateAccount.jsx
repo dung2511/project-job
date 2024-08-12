@@ -4,17 +4,19 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+
+import InputComponent from "../../../../components/InputComponent";
 const FormUpdateAccount = ({ employerDetail }) => {
   const urlImageUserDefault =
     "https://firebasestorage.googleapis.com/v0/b/website-job-21a07.appspot.com/o/Images%2Fuser_profile_default.png?alt=media&token=e0db52f4-0be5-42a2-a1be-c40da07929c1";
   const [password, setPassword] = useState(null);
-  const [fullName, setFullName] = useState(null);
-  const [emailRecruitment, setEmailRecruitment] = useState(null);
-  const [address, setAddress] = useState(null);
   const [file, setFile] = useState(null);
   const [urlAvatar, setUrlAvatar] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    emailRecruitment: "",
+    address: "",
+  });
   const handleImageUpload = async () => {
     if (file == null) return;
     const storageRef = ref(storage, `Employers/` + v4() + `${file.name}`);
@@ -28,45 +30,44 @@ const FormUpdateAccount = ({ employerDetail }) => {
       setFile(event.target.files[0]);
     }
   };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
   const handleUpdateAccount = async (e) => {
     e.preventDefault();
     auth.onAuthStateChanged(async (user) => {
       if (user != null) {
         try {
           const url = await handleImageUpload();
-          console.log(url);
           const docRef = doc(firestore, "Employers", user.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             let updatedData = {
-              fullName: fullName == null ? employerDetail.fullName : fullName,
+              fullName: formData.fullName || employerDetail.fullName,
               emailRecruitment:
-                emailRecruitment == null
-                  ? employerDetail.emailRecruitment
-                  : emailRecruitment,
-              address: address == null ? employerDetail.address : address,
+                formData.emailRecruitment || employerDetail.emailRecruitment,
+              address: formData.address || employerDetail.address,
               avatar: url ? url : employerDetail.avatar,
             };
             await updateDoc(docRef, updatedData);
             toast.success("Cập nhật thông tin thành công !!", {
               position: "top-right",
             });
+            setTimeout(() => {
+              window.location.reload();
+            }, 300);
           }
         } catch (error) {
-          toast.error(error.message, {
-            position: "top-right",
-          });
+          console.log(error);
         }
       }
     });
   };
-  if (!employerDetail) {
-    return (
-      <Box className="flex items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
   return (
     <form className="info-acc form-all" onSubmit={handleUpdateAccount}>
       <div className="flex flex-wrap border-b border-solid border-[#EBEBEB] lg:-mx-2 mb-4">
@@ -78,15 +79,12 @@ const FormUpdateAccount = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Địa chỉ email <span className=" text-[#D90909]">*</span>
             </p>
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border">
-              <input
-                type="text"
+            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px]">
+              <InputComponent
+                name={"email"}
                 disabled={true}
-                defaultValue={
-                  employerDetail?.email != null ? employerDetail.email : ""
-                }
-                placeholder="tuyendung@gmail.com"
-                className="bg-white"
+                value={employerDetail?.email}
+                label={"Địa chỉ Email"}
               />
             </div>
           </div>
@@ -94,18 +92,12 @@ const FormUpdateAccount = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Mật khẩu <span className=" text-[#D90909]">*</span>
             </p>
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border">
-              <input
-                type="password"
+            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px]">
+              <InputComponent
+                type={"password"}
                 disabled={true}
-                onChange={(e) => setPassword(e.target.value)}
-                value={
-                  employerDetail?.password != null
-                    ? employerDetail.password
-                    : ""
-                }
-                className="bg-white"
-                placeholder="********"
+                value={employerDetail.password}
+                label={"Mật khẩu"}
               />
             </div>
           </div>
@@ -164,15 +156,12 @@ const FormUpdateAccount = ({ employerDetail }) => {
           <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
             Họ và tên <span className=" text-[#D90909]">*</span>
           </p>
-          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-            <input
-              type="text"
-              defaultValue={
-                employerDetail?.fullName != null ? employerDetail.fullName : ""
-              }
-              onChange={(e) => setFullName(e.target.value)}
-              className="bg-[#F0F0F3]"
-              placeholder="Nguyễn Văn A"
+          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px] bg-[#F0F0F3]">
+            <InputComponent
+              name={"fullName"}
+              value={employerDetail.fullName}
+              onChange={handleInputChange}
+              label={"Họ và tên"}
             />
           </div>
         </div>
@@ -181,46 +170,35 @@ const FormUpdateAccount = ({ employerDetail }) => {
             <p className="w-full lg:w-1/4 mb-2 lg:mb-0">
               Số điện thoại <span className=" text-[#D90909]">*</span>
             </p>
-            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-              <input
-                type="text"
+            <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px] bg-[#F0F0F3]">
+              <InputComponent
+                label={"Số điện thoại"}
                 disabled={true}
-                defaultValue={
-                  employerDetail?.phone != null ? employerDetail.phone : ""
-                }
-                className="bg-[#F0F0F3]"
-                placeholder="098 456 789"
+                value={employerDetail.phone}
+                name={"phone"}
               />
             </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center mb-4">
           <p className="w-full lg:w-1/4 mb-2 lg:mb-0">Email liên hệ</p>
-          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-            <input
-              type="text"
-              className="bg-[#F0F0F3]"
-              defaultValue={
-                employerDetail?.emailRecruitment != null
-                  ? employerDetail.emailRecruitment
-                  : ""
-              }
-              placeholder="tuyendung@gmail.com"
-              onChange={(e) => setEmailRecruitment(e.target.value)}
+          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px]  bg-[#F0F0F3]">
+            <InputComponent
+              name={"emailRecruitment"}
+              label={"Email liên hệ"}
+              value={employerDetail.emailRecruitment}
+              onChange={handleInputChange}
             />
           </div>
         </div>
         <div className="flex flex-wrap items-center mb-4 ">
           <p className="w-full lg:w-1/4 mb-2 lg:mb-0">Địa chỉ liên hệ</p>
-          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
-            <input
-              type="text"
-              className="bg-[#F0F0F3]"
-              defaultValue={
-                employerDetail?.address != null ? employerDetail.address : ""
-              }
-              placeholder="123 Example Street, City, Country"
-              onChange={(e) => setAddress(e.target.value)}
+          <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center rounded-[5px] bg-[#F0F0F3]">
+            <InputComponent
+              name={"address"}
+              label={"Địa chỉ liên hệ"}
+              value={employerDetail.address}
+              onChange={handleInputChange}
             />
           </div>
         </div>

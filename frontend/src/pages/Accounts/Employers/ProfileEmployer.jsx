@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, firestore } from "../../../firebase.config";
 import { doc, getDoc } from "firebase/firestore";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, CircularProgress, Tab, Tabs } from "@mui/material";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import FormUpdateAccount from "./Components/FormUpdateAccount";
@@ -37,7 +37,6 @@ function a11yProps(index) {
 }
 
 const ProfileEmployer = () => {
-  
   const [value, setValue] = useState(0);
   const navigate = useNavigate();
   const handleChange = (event, newValue) => {
@@ -65,7 +64,13 @@ const ProfileEmployer = () => {
   useEffect(() => {
     fetchEmployerData();
   }, []);
-
+  if (!employerDetail) {
+    return (
+      <Box className="flex items-center justify-center">
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <section className="mt-4 bg-[#F0F0F3]">
       <div className="container">

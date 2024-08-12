@@ -14,15 +14,13 @@ import { Editor } from "@tinymce/tinymce-react";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { createSlug } from "../../../../components/createSlug";
+import { createSlug } from "../../../../components/utils";
 import InputComponent from "../../../../components/InputComponent";
 import SelectComponent from "../../../../components/SelectComponent";
 const FormUpdateCompany = ({ employerDetail }) => {
   const urlImageUserDefault =
     "https://firebasestorage.googleapis.com/v0/b/website-job-21a07.appspot.com/o/Images%2Fuser_profile_default.png?alt=media&token=e0db52f4-0be5-42a2-a1be-c40da07929c1";
-  const [editorKey, setEditorKey] = useState("initial");
   const [queryPersonalSize, setQueryPersonalSize] = useState(null);
-  const [introduceCompany, setIntroduceCompay] = useState(null);
   const [imageCompany, setImageCompany] = useState(null);
   const [urlImageCompany, setUrlImageCompany] = useState(null);
   const [listCity, setListCity] = useState(null);
@@ -41,7 +39,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
       ...prevFormData,
       [editorName]: content,
     }));
-    console.log(content);
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -98,9 +95,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
     fetchDataCity();
     fetchDataPersonalSize();
   }, []);
-  const handleChangeEditor = (content) => {
-    setIntroduceCompay(content);
-  };
   const handleUpdateCompany = async (e) => {
     e.preventDefault();
     auth.onAuthStateChanged(async (user) => {
@@ -274,7 +268,6 @@ const FormUpdateCompany = ({ employerDetail }) => {
           <p className="w-full lg:w-1/4 mb-2 lg:mb-0">Giới thiệu công ty</p>
           <div className="w-full lg:w-3/4 box-pass relative flex justify-between items-center border-solid rounded-[5px] border border-[#B9B9B9] bg-[#F0F0F3]">
             <Editor
-              key={editorKey}
               apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
               onInit={(evt, editor) => (editorRef.current = editor)}
               onEditorChange={(content) =>

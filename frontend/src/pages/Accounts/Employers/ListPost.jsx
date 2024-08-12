@@ -1,8 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
-
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
+import { auth, firestore } from "../../../firebase.config";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { Box, CircularProgress } from "@mui/material";
+import { convertTimestampToDate } from "../../../components/utils";
+import EditIcon from "@mui/icons-material/Edit";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import DeleteIcon from "@mui/icons-material/Delete";
 const ListPost = () => {
-  
+  const [userId, setUserId] = useState(null);
+  const [listData, setListData] = useState(null);
+  const navigate = useNavigate();
+  const checkAuth = async () => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user != null) {
+        setUserId(user.uid);
+      } else {
+        navigate("/");
+        toast.error("Vui lòng đăng nhập tài khoản nhà tuyển dụng", {
+          position: "top-right",
+        });
+      }
+    });
+  };
+  const fetchListDataPost = async () => {
+    try {
+      const q = query(
+        collection(firestore, "Posts"),
+        where("employerId", "==", userId)
+      );
+      if (!q.empty) {
+        const unsubscribe = onSnapshot(q, (docSnapshot) => {
+          setListData(
+            docSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+          );
+        });
+        return () => unsubscribe();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    checkAuth();
+    fetchListDataPost();
+  }, [userId]);
+  if (listData == null) {
+    return (
+      <Box className="flex items-center justify-center">
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <section className="py-6 xl:py-10 posting-list">
       <div className="container">
@@ -15,139 +83,128 @@ const ListPost = () => {
               <span className="text-[var(--cl-blue)]">Danh sách tin đăng</span>
             </div>
             <div className="table-file my-service">
-              <table className="w-full table-list">
-                <thead className="hidden lg:table-header-group">
-                  <tr>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525]">
-                      Tên công việc
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Ngày đăng
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Thời hạn nộp
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Lượt nộp
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Lượt xem
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Tình trạng tin
-                    </td>
-                    <td className="xl:py-4 py-2 font-semibold text-[#252525] text-center">
-                      Khác
-                    </td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t-[1px] border-solid border-[#ebebeb] first:border-t-[0px] lg:first:border-t-[1px] relative">
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 pr-12 lg:block lg:pr-0">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Tên công việc:
-                        </span>
-                        <span className="text lg:text-[0.875rem]">
-                          <a
-                            href="intern-nguyen-van-c"
-                            title="Intern"
-                            className="name"
-                          >
-                            Intern
-                          </a>
-                        </span>
-                      </div>
-                    </td>
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 text-left lg:block lg:text-center ">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Ngày đăng:
-                        </span>
-                        <span className="text lg:text-[0.875rem]">
-                          27/06/2024
-                        </span>
-                      </div>
-                    </td>
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 text-left lg:block lg:text-center">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Thời hạn nộp:
-                        </span>
-                        <span className="text lg:text-[0.875rem]">
-                          30/06/2024
-                        </span>
-                      </div>
-                    </td>
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 text-left lg:block lg:text-center">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Lượt nộp:
-                        </span>
-                        <span className="text lg:text-[0.875rem]">0</span>
-                      </div>
-                    </td>
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 text-left lg:block lg:text-center">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Lượt xem:
-                        </span>
-                        <span className="text lg:text-[0.875rem]"></span>
-                      </div>
-                    </td>
-                    <td className="float-left w-full py-2 xl:py-4 lg:float-none lg:w-auto">
-                      <div className="flex justify-between gap-4 text-left lg:block lg:text-center">
-                        <span className="title font-semibold text-[#252525] block lg:hidden">
-                          Tình trạng tin:
-                        </span>
-                        <span className="text lg:text-[0.875rem]">
-                          <strong className="is_show">Đang hoạt động</strong>
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="float-left w-full py-2 text-center xl:py-4 lg:float-none lg:w-auto">
-                      <div
-                        className="btn-action show-action cursor-pointer absolute top-0 right-0 lg:relative w-6 h-6 mx-auto rounded-full flex items-center justify-center bg-[#f5f5f5]"
-                        data-action=""
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Tên công việc</TableCell>
+                      <TableCell
+                        sx={{
+                          width: "160px",
+                          textAlign: "center",
+                        }}
                       >
-                        <i className="fa-solid fa-ellipsis"></i>
-                        <div className="text-[14px] list-action absolute whitespace-nowrap hidden right-7 lg:right-auto lg:left-[calc(100%_+_15px)] z-[1] top-0 bg-white shadow-[0_4px_10px_rgba(0,0,0,.3)] p-0 text-center">
-                          <a
-                            href="https://joblaw.vn/xem-lai-tin/3107"
-                            title="Xem lại"
-                            className="block p-2 border-b-[1px] border-b-[#ebebeb]"
+                        Ngày đăng
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          width: "160px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Thời hạn nộp
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          width: "160px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Lượt nộp
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          width: "160px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Tình trạng tin
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          width: "160px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Chức năng
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {listData.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {item.positionJob}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "160px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {convertTimestampToDate(item.timeCreated)}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "160px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {convertTimestampToDate(item.expirationDate)}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "160px",
+                            textAlign: "center",
+                          }}
+                        >
+                          0
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "160px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {item.expirationDate.seconds <=
+                          item.timeCreated.seconds
+                            ? "Đã hết hạn"
+                            : "Đang hoạt động"}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "160px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Link
+                            to={"/tuyen-dung/" + item.slug}
+                            title="Xem tin"
+                            className="p-2"
                           >
-                            Xem lại
-                          </a>
-                          <a
-                            href="https://joblaw.vn/sua-tin-tuyen-dung/3107"
+                            <RemoveRedEyeIcon />
+                          </Link>
+                          <Link
+                            to={"/sua-tin-dang/" + item.id}
                             title="Chỉnh sửa"
-                            className="block p-2 border-b-[1px] border-b-[#ebebeb]"
+                            className="p-2"
                           >
-                            Chỉnh sửa
-                          </a>
-                          <a
-                            href="https://joblaw.vn/sao-chep-tin/3107"
-                            title="Sao chép"
-                            className="block p-2 border-b-[1px] border-b-[#ebebeb]"
-                          >
-                            Sao chép
-                          </a>
-                          <a
-                            href="https://joblaw.vn/xoa-tin/3107"
-                            title="Xóa tin"
-                            className="block p-2 border-b-[1px] border-b-[#ebebeb]"
-                          >
-                            Xóa tin
-                          </a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div></div>
+                            <EditIcon />
+                          </Link>
+                          <button title="Xóa tin" className="inline-block">
+                            <DeleteIcon />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </div>
           </div>
         </div>
