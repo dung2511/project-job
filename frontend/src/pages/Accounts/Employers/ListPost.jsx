@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -58,6 +59,20 @@ const ListPost = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+  const handleDeletePost = async (id) => {
+    try {
+      const postRef = doc(firestore, "Posts", id);
+      await deleteDoc(postRef);
+      setListData((prevListData) =>
+        prevListData.filter((item) => item.id !== id)
+      );
+      toast.success("Tin tuyển dụng đã được xóa thành công!", {
+        position: "top-right",
+      });
+    } catch (error) {
+      console.error("Error deleting post: ", error);
     }
   };
   useEffect(() => {
@@ -196,7 +211,11 @@ const ListPost = () => {
                           >
                             <EditIcon />
                           </Link>
-                          <button title="Xóa tin" className="inline-block">
+                          <button
+                            title="Xóa tin"
+                            onClick={() => handleDeletePost(item.id)}
+                            className="inline-block"
+                          >
                             <DeleteIcon />
                           </button>
                         </TableCell>

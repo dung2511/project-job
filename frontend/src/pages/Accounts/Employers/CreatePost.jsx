@@ -1,13 +1,4 @@
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  startAt,
-} from "firebase/firestore";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import { auth, firestore } from "../../../firebase.config";
 import { useNavigate } from "react-router-dom";
@@ -17,46 +8,81 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
-import SelectComponent from "../../../components/SelectComponent";
-import InputComponent from "../../../components/InputComponent";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { Editor } from "@tinymce/tinymce-react";
 import { v4 } from "uuid";
 import { createSlug } from "../../../components/utils";
+import {
+  useFetchCareerJob,
+  useFetchCity,
+  useFetchExperience,
+  useFetchLevelJob,
+  useFetchUnitType,
+  useFetchWorkType,
+} from "../../../hooks/useFetchData";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+const initialState = {
+  positionJob: "",
+  levelJob: "",
+  careerJob: "",
+  workJob: "",
+  experienceJob: "",
+  minSalary: "",
+  maxSalary: "",
+  unit: "",
+  salaryNegotiable: 0,
+  descriptionJob: "",
+  candidateRequirement: "",
+  benefit: "",
+  timeWork: "",
+  quantity: "",
+  workplace: "",
+  timeCreated: dayjs(new Date()),
+  expirationDate: dayjs(new Date()),
+};
 const CreatePost = () => {
   const [employerDetail, setEmployerDetail] = useState(null);
   const editorRef = useRef();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    positionJob: "",
-    levelJob: "",
-    careerJob: "",
-    workJob: "",
-    experienceJob: "",
-    minSalary: "",
-    maxSalary: "",
-    unit: "",
-    salaryNegotiable: false,
-    descriptionJob: "",
-    candidateRequirement: "",
-    benefit: "",
-    timeWork: "",
-    timeCreated: dayjs(new Date()),
-    expirationDate: dayjs(new Date()),
-    quantity: "",
-    workplace: "",
-  });
-  const handleEditorChange = (content, editorName) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [editorName]: content,
-    }));
+  const [data, setData] = useState(initialState);
+  const {
+    positionJob,
+    levelJob,
+    careerJob,
+    workJob,
+    experienceJob,
+    minSalary,
+    maxSalary,
+    unit,
+    salaryNegotiable,
+    descriptionJob,
+    candidateRequirement,
+    benefit,
+    timeWork,
+    quantity,
+    timeCreated,
+    expirationDate,
+    workplace,
+  } = data;
+  const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value });
   };
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  const handleDateChange = (date) => {
+    setData({ ...data, [date.target.name]: date });
+  };
+  const handleEditorChange = (content, name) => {
+    setData({
+      ...data,
+      [name]: content,
+    });
   };
   const checkAuth = async () => {
     auth.onAuthStateChanged(async (user) => {
@@ -78,136 +104,130 @@ const CreatePost = () => {
     e.preventDefault();
     const user = auth.currentUser;
     try {
-      if (formData.positionJob == "") {
+      if (positionJob == "") {
         toast.error("Vui lòng nhập chức danh công việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.levelJob == "") {
+      if (levelJob == "") {
         toast.error("Vui lòng chọn cấp bậc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.careerJob == "") {
+      if (careerJob == "") {
         toast.error("Vui lòng chọn ngành nghề !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.workJob == "") {
+      if (workJob == "") {
         toast.error("Vui lòng chọn nơi làm việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.experienceJob == "") {
+      if (experienceJob == "") {
         toast.error("Vui lòng chọn kinh nghiệm làm việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.salaryNegotiable == 0) {
-        if (formData.minSalary == "") {
+      if (salaryNegotiable == 0) {
+        if (minSalary == "") {
           toast.error("Vui lòng nhập mức lương tối thiểu !!", {
             position: "top-right",
           });
           return;
         }
-        if (Number(formData.minSalary) <= 10000) {
+        if (Number(minSalary) <= 10000) {
           toast.error("Mức lương tối thiểu phải lớn hơn 10.000đ !!", {
             position: "top-right",
           });
           return;
         }
-        if (isNaN(formData.minSalary) && isNaN(formData.maxSalary)) {
+        if (isNaN(minSalary) && isNaN(maxSalary)) {
           toast.error("Mức lương phải là số !!", {
             position: "top-right",
           });
           return;
         }
-        if (formData.maxSalary == "") {
+        if (maxSalary == "") {
           toast.error("Vui lòng nhập mức lương tối đa !!", {
             position: "top-right",
           });
           return;
         }
-        if (Number(formData.maxSalary) <= Number(formData.minSalary)) {
+        if (Number(maxSalary) <= Number(minSalary)) {
           toast.error("Mức lương tối đa phải lớn hơn mức lương tối thiểu !!", {
             position: "top-right",
           });
           return;
         }
       }
-      if (formData.descriptionJob == "") {
+      if (descriptionJob == "") {
         toast.error("Vui lòng nhập mô tả công việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.candidateRequirement == "") {
+      if (candidateRequirement == "") {
         toast.error("Vui lòng nhập yêu cầu ứng viên !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.benefit == "") {
+      if (benefit == "") {
         toast.error("Vui lòng nhập quyền lợi !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.timeWork == "") {
+      if (timeWork == "") {
         toast.error("Vui lòng nhập thời gian làm việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.quantity == "") {
+      if (quantity == "") {
         toast.error("Vui lòng nhập số lượng ứng viên !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.workplace == "") {
+      if (workplace == "") {
         toast.error("Vui lòng chọn hình thức làm việc !!", {
           position: "top-right",
         });
         return;
       }
-      if (formData.expirationDate.isBefore(formData.timeCreated)) {
+      if (expirationDate.isBefore(timeCreated)) {
         toast.error("Ngày hết hạn không thể trước ngày tạo !!", {
           position: "top-right",
         });
         return;
       }
-      const slug = createSlug(formData.positionJob) + v4();
+      const slug = createSlug(positionJob) + v4();
       const cleanedFormData = {
         slug: slug,
-        image: employerDetail.imageCompany,
-        nameCompany: employerDetail.nameCompany,
-        positionJob: formData.positionJob || "",
-        levelJob: formData.levelJob || "",
-        careerJob: formData.careerJob || "",
-        workJob: formData.workJob || "",
-        experienceJob: formData.experienceJob || "",
-        minSalary: formData.minSalary || 0,
-        maxSalary: formData.maxSalary || 0,
-        unit: formData.unit || 1,
-        salaryNegotiable: formData.salaryNegotiable || 0,
-        descriptionJob: formData.descriptionJob || "",
-        candidateRequirement: formData.candidateRequirement || "",
-        benefit: formData.benefit || "",
-        timeWork: formData.timeWork || "",
-        timeCreated: formData.timeCreated
-          ? formData.timeCreated.toDate()
-          : new Date(),
-        expirationDate: formData.expirationDate
-          ? formData.expirationDate.toDate()
-          : new Date(),
-        quantity: formData.quantity || 0,
-        workplace: formData.workplace || "",
+        positionJob: positionJob || "",
+        levelJob: levelJob || "",
+        careerJob: careerJob || "",
+        workJob: workJob || "",
+        experienceJob: experienceJob || "",
+        minSalary: minSalary || 0,
+        maxSalary: maxSalary || 0,
+        unit: unit || 1,
+        salaryNegotiable: salaryNegotiable || 0,
+        descriptionJob: descriptionJob || "",
+        candidateRequirement: candidateRequirement || "",
+        benefit: benefit || "",
+        timeWork: timeWork || "",
+        timeCreated: timeCreated ? timeCreated.toDate() : new Date(),
+        expirationDate: expirationDate ? expirationDate.toDate() : new Date(),
+        quantity: quantity || 0,
+        workplace: workplace || "",
       };
       await addDoc(collection(firestore, "Posts"), {
         employerId: user.uid,
@@ -216,108 +236,21 @@ const CreatePost = () => {
       toast.success("Đăng bài thành công !!", {
         position: "top-right",
       });
+      setTimeout(() => {
+        navigate("/danh-sach-tin-dang");
+      }, 500);
     } catch (error) {
       console.log(error);
     }
   };
-  const [listCity, setListCity] = useState(null);
-  const [level, setLevel] = useState(null);
-  const [career, setCareer] = useState(null);
-  const [experience, setExperience] = useState(null);
-  const [workType, setWorkType] = useState(null);
-  const [listUnit, setListUnit] = useState(null);
-  const fetchDataCity = async () => {
-    try {
-      const q = query(collection(firestore, "cities"));
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setListCity(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fectchDataLevel = async () => {
-    try {
-      const q = query(collection(firestore, "levels"));
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setLevel(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchDataCareer = async () => {
-    try {
-      const q = query(collection(firestore, "career_categories"));
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setCareer(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchDataExperience = async () => {
-    try {
-      const q = query(
-        collection(firestore, "experiences"),
-        orderBy("id"),
-        startAt(0)
-      );
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setExperience(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchDataWorkType = async () => {
-    try {
-      const q = query(
-        collection(firestore, "working_types"),
-        orderBy("id"),
-        startAt(0)
-      );
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setWorkType(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchDataListUnit = async () => {
-    try {
-      const q = query(
-        collection(firestore, "unit_type"),
-        orderBy("id"),
-        startAt(0)
-      );
-      if (!q.empty) {
-        const categories = onSnapshot(q, (querySnapshot) => {
-          setListUnit(querySnapshot.docs.map((doc) => doc.data()));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const { career } = useFetchCareerJob();
+  const { listCity } = useFetchCity();
+  const { level } = useFetchLevelJob();
+  const { experience } = useFetchExperience();
+  const { workType } = useFetchWorkType();
+  const { listUnit } = useFetchUnitType();
   useEffect(() => {
-    fetchDataCity();
-    fectchDataLevel();
-    fetchDataCareer();
-    fetchDataExperience();
-    fetchDataWorkType();
     checkAuth();
-    fetchDataListUnit();
   }, []);
   return (
     <section className="make-news-recruit xl:py-10 py-6">
@@ -328,115 +261,233 @@ const CreatePost = () => {
           </div>
           <div className="w-full lg:w-[78%] px-2">
             <div className="head-title-all leading-[1.3] mb-4 border-l-[5px] border-solid border-[#DD6B4D] pl-4 font-bold 2xl:text-[1.5rem] xl:text-[1.25rem] text-[1rem]">
-              <span className="text-[var(--cl-blue)]">Đăng tin tuyển dụng</span>
+              <span className="text-[var(--cl-blue)]">
+                Chỉnh sửa tin tuyển dụng
+              </span>
             </div>
             <form onSubmit={handleCreatePost}>
               <div className="form-post-new">
                 <p className="title flex items-center xl:text-[1.5rem] text-[1.25rem] mb-6">
                   <span className="icon rounded-full text-[1rem] w-[2.5rem] h-[2.5rem] bg-[#DD6B4D] text-white inline-flex items-center justify-center shrink-0 mr-2">
-                    <i className="fa-solid fa-suitcase"></i>
+                    <BusinessCenterIcon />
                   </span>
                   Mô tả công việc
                 </p>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Chức danh <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <InputComponent
-                    name={"positionJob"}
-                    onChange={handleInputChange}
-                    value={formData.positionJob}
-                    label={"Nhập chức danh công việc"}
-                  />
+                  <Box sx={{ width: 1 }} autoComplete="off">
+                    <TextField
+                      type={"text"}
+                      fullWidth
+                      onChange={handleChange}
+                      id={`outlined-positionJob`}
+                      label={"Chức danh"}
+                      name={"positionJob"}
+                      value={positionJob}
+                      variant="outlined"
+                      autoComplete="off"
+                    />
+                  </Box>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Cấp bậc <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <SelectComponent
-                    name={"levelJob"}
-                    option={level}
-                    value={formData.levelJob}
-                    onChange={handleInputChange}
-                    label={"Cấp bậc"}
-                  />
+                  <Box sx={{ width: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id={`levelJob-select-label`}>
+                        Cấp bậc
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        className="w-full"
+                        labelId={`levelJob-select-label`}
+                        id="levelJob-simple-select"
+                        value={levelJob}
+                        name={"levelJob"}
+                        onChange={handleChange}
+                        label={"Cấp bậc"}
+                      >
+                        {level &&
+                          level.map((item, index) => {
+                            return (
+                              <MenuItem value={item.id} key={index}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Ngành nghề <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <SelectComponent
-                    name={"careerJob"}
-                    option={career}
-                    value={formData.careerJob}
-                    onChange={handleInputChange}
-                    label={"Ngành nghề"}
-                  />
+                  <Box sx={{ width: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id={`careerJob-select-label`}>
+                        Ngành nghề
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        className="w-full"
+                        labelId={`careerJob-select-label`}
+                        id="careerJob-simple-select"
+                        value={careerJob}
+                        name={"careerJob"}
+                        onChange={handleChange}
+                        label={"Ngành nghề"}
+                      >
+                        {career &&
+                          career.map((item, index) => {
+                            return (
+                              <MenuItem value={item.id} key={index}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Nơi làm việc<span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <SelectComponent
-                    name={"workJob"}
-                    option={listCity}
-                    value={formData.workJob}
-                    onChange={handleInputChange}
-                    label={"Nơi làm việc"}
-                  />
+                  <Box sx={{ width: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id={`workJob-select-label`}>
+                        Nơi làm việc
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        className="w-full"
+                        labelId={`workJob-select-label`}
+                        id="workJob-simple-select"
+                        value={workJob}
+                        name={"workJob"}
+                        onChange={handleChange}
+                        label={"Nơi làm việc"}
+                      >
+                        {listCity &&
+                          listCity.map((item, index) => {
+                            return (
+                              <MenuItem value={item.id} key={index}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Kinh nghiệm làm việc
                     <span className="text-[#DD6B4D]">*</span>
                   </p>
-                  <SelectComponent
-                    name={"experienceJob"}
-                    option={experience}
-                    value={formData.experienceJob}
-                    onChange={handleInputChange}
-                    label={"Kinh nghiệm làm việc"}
-                  />
+                  <Box sx={{ width: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id={`experienceJob-select-label`}>
+                        Kinh nghiệm làm việc
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        className="w-full"
+                        labelId={`experienceJob-select-label`}
+                        id="experienceJob-simple-select"
+                        value={experienceJob}
+                        name={"experienceJob"}
+                        onChange={handleChange}
+                        label={"Kinh nghiệm làm việc"}
+                      >
+                        {experience &&
+                          experience.map((item, index) => {
+                            return (
+                              <MenuItem value={item.id} key={index}>
+                                {item.name}
+                              </MenuItem>
+                            );
+                          })}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </div>
 
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Mức lương<span className="text-[#DD6B4D]">*</span>
                   </p>
                   <div className="import-wage flex flex-wrap">
                     <div className="flex items-center mr-4">
                       <span style={{ marginRight: "5px" }}>Từ: </span>
-                      <InputComponent
-                        name={"minSalary"}
-                        onChange={handleInputChange}
-                        value={formData.minSalary}
-                        label={"Lương tối thiểu"}
-                      />
+                      <Box sx={{ width: 1 }} autoComplete="off">
+                        <TextField
+                          type={"text"}
+                          fullWidth
+                          onChange={handleChange}
+                          id={`outlined-minSalary`}
+                          label={"Lương tối thiểu"}
+                          name={"minSalary"}
+                          value={minSalary}
+                          variant="outlined"
+                          autoComplete="off"
+                        />
+                      </Box>
                     </div>
                     <div className="flex items-center mr-4">
                       <span style={{ marginRight: "5px" }}>Đến: </span>
-                      <InputComponent
-                        name={"maxSalary"}
-                        onChange={handleInputChange}
-                        value={formData.maxSalary}
-                        label={"Lương tối đa"}
-                      />
+                      <Box sx={{ width: 1 }} autoComplete="off">
+                        <TextField
+                          type={"text"}
+                          fullWidth
+                          onChange={handleChange}
+                          id={`outlined-maxSalary`}
+                          label={"Lương tối đa"}
+                          name={"maxSalary"}
+                          value={maxSalary}
+                          variant="outlined"
+                          autoComplete="off"
+                        />
+                      </Box>
                     </div>
                     <div className="flex items-center mr-4 min-w-[6rem]">
-                      <SelectComponent
-                        name={"unit"}
-                        value={formData.unit}
-                        onChange={handleInputChange}
-                        label={"Đơn vị"}
-                        option={listUnit}
-                      />
+                      <Box sx={{ width: 1 }}>
+                        <FormControl fullWidth>
+                          <InputLabel id={`unit-select-label`}>
+                            Đơn vị
+                          </InputLabel>
+                          <Select
+                            fullWidth
+                            className="w-full"
+                            labelId={`unit-select-label`}
+                            id="unit-simple-select"
+                            value={unit}
+                            name={"unit"}
+                            onChange={handleChange}
+                            label={"Đơn vị"}
+                          >
+                            {listUnit &&
+                              listUnit.map((item, index) => {
+                                return (
+                                  <MenuItem value={item.id} key={index}>
+                                    {item.name}
+                                  </MenuItem>
+                                );
+                              })}
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </div>
                     <div className="flex items-center mb-2">
                       <label className="form-status__all block relative">
                         <input
-                          onChange={handleInputChange}
+                          onChange={handleChange}
                           type="checkbox"
-                          value={1}
+                          value={salaryNegotiable}
                           className="hidden"
                         />
                         <span className="button"></span>
@@ -448,12 +499,13 @@ const CreatePost = () => {
                   </div>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Mô tả công việc <span className="text-[#DD6B4D]">*</span>
                   </p>
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
+                    initialValue={descriptionJob}
                     onEditorChange={(content) =>
                       handleEditorChange(content, "descriptionJob")
                     }
@@ -463,9 +515,9 @@ const CreatePost = () => {
                       width: "100%",
                       menubar: false,
                       plugins:
-                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount   linkchecker                   ",
                       toolbar:
-                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table  | addcomment showcomments | spellcheckdialog a11ycheck  | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
@@ -473,12 +525,13 @@ const CreatePost = () => {
                   </p>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Yêu cầu ứng viên <span className="text-[#DD6B4D]">*</span>
                   </p>
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
+                    initialValue={candidateRequirement}
                     onEditorChange={(content) =>
                       handleEditorChange(content, "candidateRequirement")
                     }
@@ -488,9 +541,9 @@ const CreatePost = () => {
                       width: "100%",
                       menubar: false,
                       plugins:
-                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount   linkchecker                   ",
                       toolbar:
-                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table  | addcomment showcomments | spellcheckdialog a11ycheck  | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
@@ -498,12 +551,13 @@ const CreatePost = () => {
                   </p>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Quyền lợi <span className="text-[#DD6B4D]">*</span>
                   </p>
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
+                    initialValue={benefit}
                     onEditorChange={(content) =>
                       handleEditorChange(content, "benefit")
                     }
@@ -513,9 +567,9 @@ const CreatePost = () => {
                       width: "100%",
                       menubar: false,
                       plugins:
-                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount   linkchecker                   ",
                       toolbar:
-                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table  | addcomment showcomments | spellcheckdialog a11ycheck  | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
                   <p className="sub text-[.75rem] text-[#7d7d7d]">
@@ -523,12 +577,13 @@ const CreatePost = () => {
                   </p>
                 </div>
                 <div className="form-group mb-3">
-                  <p className="font-semibold text-[#1C4B82] mb-2">
+                  <p className="font-semibold text-[#1C4B82] mb-4">
                     Thời gian làm việc <span className="text-[#DD6B4D]">*</span>
                   </p>
                   <Editor
                     apiKey="fliutou8i6pp4gkt9r5eb3g8cpicg9y90ono29vhhs1z133h"
                     onInit={(evt, editor) => (editorRef.current = editor)}
+                    initialValue={timeWork}
                     onEditorChange={(content) =>
                       handleEditorChange(content, "timeWork")
                     }
@@ -538,9 +593,9 @@ const CreatePost = () => {
                       width: "100%",
                       menubar: false,
                       plugins:
-                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                        "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount   linkchecker                   ",
                       toolbar:
-                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                        "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table  | addcomment showcomments | spellcheckdialog a11ycheck  | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                     }}
                   />
 
@@ -550,69 +605,97 @@ const CreatePost = () => {
                 </div>
                 <div className="flex flex-wrap items-center md:-mx-2">
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
-                    <p className="font-semibold text-[#1C4B82] mb-2">
+                    <p className="font-semibold text-[#1C4B82] mb-4">
                       Ngày đăng
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        name="timeCreated"
+                        name={"timeCreated"}
                         className="w-full"
-                        value={formData.timeCreated}
-                        onChange={handleInputChange}
+                        value={dayjs(timeCreated.toDate())}
+                        onChange={handleDateChange}
                       />
                     </LocalizationProvider>
                   </div>
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
-                    <p className="font-semibold text-[#1C4B82] mb-2">
+                    <p className="font-semibold text-[#1C4B82] mb-4">
                       Ngày hết hạn
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        name="expirationDate"
+                        name={"expirationDate"}
                         className="w-full"
-                        value={formData.expirationDate}
-                        onChange={handleInputChange}
+                        value={dayjs(expirationDate.toDate())}
+                        onChange={handleDateChange}
                       />
                     </LocalizationProvider>
                   </div>
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
-                    <p className="font-semibold text-[#1C4B82] mb-2">
+                    <p className="font-semibold text-[#1C4B82] mb-4">
                       Số lượng cần tuyển
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
-                    <InputComponent
-                      name={"quantity"}
-                      onChange={handleInputChange}
-                      value={formData.quantity}
-                      label={"Số lượng cần tuyển"}
-                    />
+                    <Box sx={{ width: 1 }} autoComplete="off">
+                      <TextField
+                        type={"text"}
+                        fullWidth
+                        onChange={handleChange}
+                        id={`outlined-quantity`}
+                        label={"Số lượng"}
+                        name={"quantity"}
+                        value={quantity}
+                        variant="outlined"
+                        autoComplete="off"
+                      />
+                    </Box>
                   </div>
                   <div className="form-group mb-3 w-full md:w-1/2 md:px-2">
-                    <p className="font-semibold text-[#1C4B82] mb-2">
+                    <p className="font-semibold text-[#1C4B82] mb-4">
                       Hình thức làm việc
                       <span className="text-[#DD6B4D]">*</span>
                     </p>
-                    <SelectComponent
-                      name={"workplace"}
-                      option={workType}
-                      value={formData.workplace}
-                      onChange={handleInputChange}
-                      label={"Hình thức làm việc"}
-                    />
+                    <Box sx={{ width: 1 }}>
+                      <FormControl fullWidth>
+                        <InputLabel id={`unit-select-label`}>
+                          Hình thức làm việc
+                        </InputLabel>
+                        <Select
+                          fullWidth
+                          className="w-full"
+                          labelId={`workplace-select-label`}
+                          id="workplace-simple-select"
+                          value={workplace}
+                          name={"workplace"}
+                          onChange={handleChange}
+                          label={"Hình thức làm việc"}
+                        >
+                          {workType &&
+                            workType.map((item, index) => {
+                              return (
+                                <MenuItem value={item.id} key={index}>
+                                  {item.name}
+                                </MenuItem>
+                              );
+                            })}
+                        </Select>
+                      </FormControl>
+                    </Box>
                   </div>
                 </div>
               </div>
-              <div className="form-button text-center">
-                <div className="container">
-                  <button
-                    type="submit"
-                    className="btn py-[10px] px-[50px] rounded font-medium bg-[#DD6B4D] text-white hover:bg-[#ff8768] hover:text-white"
-                  >
-                    Đăng tin
-                  </button>
-                </div>
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  sx={{
+                    textTransform: "none",
+                    lineHeight: "1",
+                  }}
+                  variant="contained"
+                >
+                  Cập nhật
+                </Button>
               </div>
             </form>
           </div>

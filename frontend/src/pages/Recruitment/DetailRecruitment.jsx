@@ -1,333 +1,784 @@
-import { Box, CircularProgress } from "@mui/material";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  Stack,
+} from "@mui/material";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { firestore } from "../../firebase.config";
-
+import { Link, useParams } from "react-router-dom";
+import { auth, firestore } from "../../firebase.config";
+import dayjs from "dayjs";
+import GradeIcon from "@mui/icons-material/Grade";
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
+import GroupsIcon from "@mui/icons-material/Groups";
+import BusinessIcon from "@mui/icons-material/Business";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import WorkIcon from "@mui/icons-material/Work";
+import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SendIcon from "@mui/icons-material/Send";
+import PeopleIcon from "@mui/icons-material/People";
+import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
+import { convertSalary } from "../../components/utils";
+import { toast } from "react-toastify";
 const DetailRecruitment = () => {
   const { slug } = useParams();
   const [dataDetail, setDataDetail] = useState(null);
+  const [dataEmployer, setDataEmployer] = useState(null);
+  const [levelJobName, setLevelJobName] = useState(null);
+  const [careerJobName, setCareerJobName] = useState(null);
+  const [experienceJobName, setExperienceJobName] = useState(null);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fetchDataDetail = async () => {
     try {
-      const docRef = doc(firestore, "Posts", slug);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setDataDetail(docSnap.data());
+      const q = query(
+        collection(firestore, "Posts"),
+        where("slug", "==", slug)
+      );
+      const docSnap = await getDocs(q);
+      if (!docSnap.empty) {
+        const data = docSnap.docs[0].data();
+        setDataDetail((prevDetail) => ({
+          ...prevDetail,
+          id: docSnap.docs[0].id,
+          ...data,
+        }));
       }
     } catch (error) {
       console.log(error);
     }
   };
+  const fetchDataEmployer = async () => {
+    try {
+      if (!dataDetail || !dataDetail.employerId) return;
+      const docRef = doc(firestore, "Employers", dataDetail?.employerId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setDataEmployer(docSnap.data());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const queryDataId = async () => {
+    const queryLevelJob = async () => {
+      try {
+        if (!dataDetail || !dataDetail.levelJob) return;
+        const docSnap = await getDoc(
+          doc(firestore, "levels", dataDetail?.levelJob)
+        );
+        if (docSnap.exists()) {
+          setLevelJobName(docSnap.data().name);
+        }
+      } catch (error) {
+        console.error("Error fetching level job:", error);
+        return "Error fetching level";
+      }
+    };
+    const queryCareerJob = async () => {
+      try {
+        if (!dataDetail || !dataDetail.careerJob) return;
+        const docSnap = await getDoc(
+          doc(firestore, "career_categories", dataDetail?.careerJob)
+        );
+        if (docSnap.exists()) {
+          setCareerJobName(docSnap.data().name);
+        }
+      } catch (error) {
+        console.error("Error fetching level job:", error);
+        return "Error fetching level";
+      }
+    };
+    const queryExperienceJob = async () => {
+      try {
+        if (!dataDetail || !dataDetail.experienceJob) return;
+        const docSnap = await getDoc(
+          doc(firestore, "experiences", dataDetail?.experienceJob)
+        );
+        if (docSnap.exists()) {
+          setExperienceJobName(docSnap.data().name);
+        }
+      } catch (error) {
+        console.error("Error fetching level job:", error);
+        return "Error fetching level";
+      }
+    };
+    queryLevelJob();
+    queryCareerJob();
+    queryExperienceJob();
+  };
+
+  const handleCheckApplyJob = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const userId = user.uid;
+      if (userId) {
+        const q = query(
+          collection(firestore, "Applications"),
+          where("postId", "==", dataDetail?.id),
+          where("userId", "==", userId)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          setHasApplied(true);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleApplyJob = async (postId, employerId) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        toast.error("Vui lòng đăng nhập để ứng tuyển !!", {
+          position: "top-right",
+        });
+      } else if (user.uid) {
+        const userQuery = doc(firestore, "Users", user.uid);
+        const userSnapshot = await getDoc(userQuery);
+        if (userSnapshot.exists()) {
+          const data = {
+            postId: postId,
+            employerId: employerId,
+            userId: user.uid,
+            createAt: new Date(),
+          };
+          await addDoc(collection(firestore, "Applications"), data);
+          toast.success("Ứng tuyển thành công !!", {
+            position: "top-right",
+          });
+        } else {
+          toast.error("Vui lòng đăng nhập tài khoản ứng viên để ứng tuyển !!", {
+            position: "top-right",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCheckSaveJob = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user == null) return;
+      const userId = user.uid;
+      if (userId !== "") {
+        if (userId !== "") {
+          const q = query(
+            collection(firestore, "Favourites"),
+            where("postId", "==", dataDetail?.id),
+            where("userId", "==", user.uid)
+          );
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            setHasLiked(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleSaveJob = async () => {
+    setIsLoading(true);
+    try {
+      const user = auth.currentUser;
+      if (user.uid === "") {
+        toast.error("Vui lòng đăng nhập để lưu tin !!", {
+          position: "top-right",
+        });
+      } else {
+        const userQuery = doc(firestore, "Users", user.uid);
+        const userSnapshot = await getDoc(userQuery);
+        if (userSnapshot.exists()) {
+          if (!hasLiked) {
+            const data = {
+              postId: dataDetail?.id,
+              employerId: dataDetail?.employerId,
+              userId: user?.uid,
+              createAt: new Date(),
+            };
+            await addDoc(collection(firestore, "Favourites"), data);
+            setHasLiked(true);
+            toast.success("Lưu tin thành công !!", {
+              position: "top-right",
+            });
+          } else {
+            const q = query(
+              collection(firestore, "Favourites"),
+              where("postId", "==", dataDetail?.id),
+              where("userId", "==", user?.uid)
+            );
+            const querySnapshot = await getDocs(q);
+            const jobDoc = querySnapshot.docs[0];
+            if (jobDoc) {
+              await deleteDoc(doc(firestore, "Favourites", jobDoc.id));
+              toast.success("Đã bỏ lưu tin !!", {
+                position: "top-right",
+              });
+              setHasLiked(false);
+            }
+          }
+        } else {
+          toast.error("Vui lòng đăng nhập tài khoản ứng viên để lưu tin !!", {
+            position: "top-right",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchDataEmployer();
+    handleCheckApplyJob();
+    handleCheckSaveJob();
+    queryDataId();
+  }, [dataDetail]);
+
   useEffect(() => {
     fetchDataDetail();
-  }, [dataDetail]);
-  if (!dataDetail) {
-    return (
-      <Box className="flex items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  }, [slug]);
+
   return (
     <section className="py-6 xl:py-10 section-job__detail">
       <div className="container">
-        <div className="flex flex-wrap items-center mb-6 -mx-2">
+        <div className="flex flex-wrap mb-6 -mx-2">
           <div className="w-full px-2 mb-4 lg:w-3/4 lg:mb-0">
-            <div className="job-info bg-[#FAFAFA] rounded-lg xl:p-6 p-4">
-              <div className="items-center block md:flex">
-                <div className="logo-company w-full md:w-[150px] shrink-0 md:mr-4 mb-4 md:mb-0">
-                  <div className="image c-img pt-[100%]">
-                    <img
-                      loading="lazy"
-                      src="../theme/frontend/images/logo-viet-3.png"
-                      alt="Luật sư， Chuyên viên luật"
-                      title="Luật sư， Chuyên viên luật"
-                      className="img-fluid"
-                    />
-                  </div>
-                </div>
-                <div className="flex-1 content">
-                  <h3 className="title font-semibold text-[#000] 2xl:text-[1.5rem] text-[1.25rem] mb-1">
-                    Luật sư， Chuyên viên luật
+            <div className="job-info bg-[#ffffff] rounded-lg xl:p-6 p-4">
+              <div className="content">
+                {dataDetail?.positionJob ? (
+                  <h3 className="title font-semibold text-[#000] 2xl:text-[1.5rem] text-[1.25rem] mb-3">
+                    {dataDetail.positionJob}
                   </h3>
-                  <p className="text-[0.875rem] text-[#7d7d7d] uppercase mb-2">
-                    Công ty Luật TNHH Minh Tín
-                  </p>
-                  <div className="flex flex-wrap -mx-2 lg:justify-between ">
-                    <div className="w-full px-2 sm:w-1/2 lg:w-1/3">
-                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center mb-3">
-                        <span
-                          className="w-4 h-4 mr-2 bg-no-repeat bg-contain icon shrink-0"
-                          style="background-image: url(../theme/frontend/images/dollar-sign.png);"
-                        ></span>
-                        Mức lương: 8M - 13M
-                      </p>
-                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center mb-3">
-                        <span
-                          className="w-4 h-4 mr-2 bg-no-repeat bg-contain icon shrink-0"
-                          style="background-image: url(../theme/frontend/images/file-text.png);"
-                        ></span>
-                        Kinh nghiệm: 3 năm
-                      </p>
-                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center mb-3">
-                        <span
-                          className="w-4 h-4 mr-2 bg-no-repeat bg-contain icon shrink-0"
-                          style="background-image: url(../theme/frontend/images/user_.png);"
-                        ></span>
-                        Vị trí: Phó giám đốc
-                      </p>
-
-                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center mb-3">
-                        <span
-                          className="w-4 h-4 mr-2 bg-no-repeat bg-contain icon shrink-0"
-                          style="background-image: url(../theme/frontend/images/map-pin.png);"
-                        ></span>
-                        Nơi làm việc: Bình Phước
-                      </p>
-                    </div>
-                    <div className="w-full px-2 sm:w-1/2 lg:w-1/3">
-                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center mb-3">
-                        <span
-                          className="w-4 h-4 mr-2 bg-no-repeat bg-contain icon shrink-0"
-                          style="background-image: url(../theme/frontend/images/clock_.png);"
-                        ></span>
-                        Hạn nộp:
-                      </p>
-                    </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
+                <div className="flex flex-wrap -mx-2 lg:justify-between mb-4">
+                  <div className="w-full mb-4 last:mb-0 lg:mb-0 px-2 sm:w-1/2 lg:w-1/3">
+                    {dataDetail?.minSalary && dataDetail?.maxSalary ? (
+                      <div className="flex items-center">
+                        <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                          <MonetizationOnIcon
+                            sx={{
+                              color: "#ffffff",
+                              fontSize: "2rem",
+                            }}
+                          />
+                        </span>
+                        <div className="">
+                          <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                            Mức lương
+                          </p>
+                          <p className="text-[1rem] font-bold text-[#000] flex items-center">
+                            {convertSalary(dataDetail.minSalary)}
+                            <span className="mx-2">-</span>
+                            {convertSalary(dataDetail.maxSalary)}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <Skeleton variant="text" width={"100%"} height={48} />
+                    )}
+                  </div>
+                  <div className="w-full mb-4 last:mb-0 lg:mb-0 px-2 sm:w-1/2 lg:w-1/3">
+                    {dataEmployer?.cityWork ? (
+                      <div className="flex items-center">
+                        <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                          <BusinessIcon
+                            sx={{
+                              color: "#ffffff",
+                              fontSize: "2rem",
+                            }}
+                          />
+                        </span>
+                        <div className="">
+                          <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                            Địa điểm
+                          </p>
+                          <p className="text-[1rem] font-bold text-[#000] flex items-center">
+                            {dataEmployer.cityWork}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <Skeleton variant="text" width={"100%"} height={48} />
+                    )}
+                  </div>
+                  <div className="w-full mb-4 last:mb-0 lg:mb-0 px-2 sm:w-1/2 lg:w-1/3">
+                    {dataDetail?.experienceJob && experienceJobName ? (
+                      <div className="flex items-center">
+                        <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                          <WorkIcon
+                            sx={{
+                              color: "#ffffff",
+                              fontSize: "2rem",
+                            }}
+                          />
+                        </span>
+                        <div className="">
+                          <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                            Kinh nghiệm
+                          </p>
+                          <p className="text-[1rem] font-bold text-[#000] flex items-center">
+                            {experienceJobName}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <Skeleton variant="text" width={"100%"} height={48} />
+                    )}
                   </div>
                 </div>
+                {dataDetail?.expirationDate ? (
+                  <div className="flex items-center bg-[#f2f4f5] px-3 py-2 w-fit mb-4">
+                    <AccessTimeFilledIcon
+                      sx={{ marginRight: "0.5rem", color: "#7f878f" }}
+                    />
+                    <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                      <span className="mr-2">Hạn nộp:</span>
+                      {dayjs(dataDetail.expirationDate.toDate()).format(
+                        "DD/MM/YYYY"
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
+                {dataDetail ? (
+                  <Stack direction="row" className="flex flex-wrap md:-mx-2">
+                    <div className="w-full md:w-2/3 md:px-2 mb-4 last:mb-0">
+                      <Button
+                        onClick={() => {
+                          if (!handleCheckApplyJob) {
+                            handleApplyJob(dataDetail?.id, dataEmployer?.id);
+                          }
+                        }}
+                        disabled={hasApplied}
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                          backgroundColor: "#00b14f",
+                          textTransform: "none",
+                          padding: "0.75rem 0",
+                          transition: "all 0.5s",
+                          "&:hover": {
+                            backgroundColor: "#009643",
+                          },
+                        }}
+                      >
+                        <SendIcon
+                          sx={{
+                            marginRight: "0.5rem",
+                            transform: "rotate(-45deg)",
+                          }}
+                        />
+                        {hasApplied ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
+                      </Button>
+                    </div>
+                    <div className="w-full md:w-1/3 md:px-2 mb-4 last:mb-0">
+                      <Button
+                        onClick={handleSaveJob}
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          color: "#00b14f",
+                          textTransform: "none",
+                          padding: "0.75rem 0",
+                          borderColor: "#99e0b9",
+                          transition: "all 0.5s",
+                          "&:hover": {
+                            borderColor: "#00b14f",
+                            color: "#00b14f",
+                          },
+                        }}
+                        disabled={isLoading} // Disable button while loading
+                      >
+                        {isLoading ? (
+                          <CircularProgress
+                            size={24}
+                            sx={{ color: "#00b14f" }}
+                          />
+                        ) : hasLiked ? (
+                          <>
+                            <FavoriteBorderIcon
+                              sx={{ marginRight: "0.5rem" }}
+                            />
+                            Đã lưu tin
+                          </>
+                        ) : (
+                          <>
+                            <FavoriteBorderIcon
+                              sx={{ marginRight: "0.5rem" }}
+                            />
+                            Lưu tin
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </Stack>
+                ) : (
+                  <Stack direction="row" spacing={2}>
+                    <Skeleton variant="text" width={160} height={40} />
+                    <Skeleton variant="text" width={120} height={40} />
+                  </Stack>
+                )}
               </div>
             </div>
           </div>
           <div className="w-full px-2 lg:w-1/4">
-            <a
-              href="javascript:void(0)"
-              title="Hủy nộp đơn"
-              className="readmore mb-4 flex items-center justify-center xl:py-4 px-6 py-2 rounded text-[0.875rem] text-white bg-[#DD6B4D] hover:bg-[#ff8768] hover:text-white"
-            >
-              <i className="mr-2 fa-regular fa-paper-plane"></i>
-              Hủy nộp đơn
-            </a>
-            <a
-              href="https://joblaw.vn/dang-nhap"
-              title="Lưu việc làm"
-              className="save-news flex items-center justify-center xl:py-4 px-6 py-2 rounded text-[0.875rem] border border-solid border-[#1C4B82] text-[#1C4B82] bg-white hover:bg-[#1C4B82] hover:text-white"
-            >
-              <i className="mr-2 fa-regular fa-heart"></i>
-              <span>Lưu tin</span>
-            </a>
+            <div className="bg-white p-4 rounded-md infomation">
+              <div className="flex flex-wrap md:-mx-2 mb-4">
+                <div className="w-full mb-4 last:mb-0 sm:mb-0 sm:w-1/3 px-2">
+                  {dataEmployer?.imageCompany ? (
+                    <div className="c-img pt-[100%] rounded-md overflow-hidden">
+                      <img
+                        loading="lazy"
+                        src={dataEmployer.imageCompany}
+                        alt={dataEmployer.nameCompany}
+                        title={dataEmployer.nameCompany}
+                        className="img-fluid"
+                      />
+                    </div>
+                  ) : (
+                    <Skeleton variant={"circular"} width={90} height={90} />
+                  )}
+                </div>
+                <div className="w-full mb-4 last:mb-0 sm:mb-0 sm:w-2/3 px-2">
+                  {dataEmployer?.nameCompany ? (
+                    <div className="text-[#212f3f] font-semibold text-center sm:text-left">
+                      {dataEmployer.nameCompany}
+                    </div>
+                  ) : (
+                    <Skeleton
+                      variant="rectangular"
+                      width={"100%"}
+                      height={90}
+                    />
+                  )}
+                </div>
+              </div>
+              {dataEmployer?.personalSize ? (
+                <div className="flex items-center mb-2">
+                  <div className="flex text-[0.875rem] text-[#7f878f] w-1/3 font-medium items-center">
+                    <GroupsIcon sx={{ marginRight: "0.5rem" }} />
+                    Quy mô:
+                  </div>
+                  <div className="w-2/3 font-semibold">
+                    {dataEmployer.personalSize}
+                  </div>
+                </div>
+              ) : (
+                <Skeleton variant={"text"} width={"100%"} height={40} />
+              )}
+              {dataDetail?.careerJob && careerJobName ? (
+                <div className="flex items-center mb-2">
+                  <div className="flex text-[0.875rem] text-[#7f878f] w-1/3 font-medium items-center">
+                    <ViewInArIcon sx={{ marginRight: "0.5rem" }} />
+                    Lĩnh vực:
+                  </div>
+                  <div className="w-2/3 font-semibold">{careerJobName}</div>
+                </div>
+              ) : (
+                <Skeleton variant={"text"} width={"100%"} height={40} />
+              )}
+              {dataEmployer?.addressCompany ? (
+                <div className="flex items-center mb-2">
+                  <div className="flex text-[0.875rem] text-[#7f878f] w-1/3 font-medium items-center">
+                    <BusinessIcon sx={{ marginRight: "0.5rem" }} />
+                    Địa điểm:
+                  </div>
+                  <div className="w-2/3 font-semibold">
+                    {dataEmployer.addressCompany}
+                  </div>
+                </div>
+              ) : (
+                <Skeleton variant={"text"} width={"100%"} height={40} />
+              )}
+              {dataEmployer?.slug ? (
+                <Link
+                  className="text-center block text-[#00b14f] text-[0.875rem] font-semibold"
+                  to={"/cong-ty/" + dataEmployer?.slug}
+                >
+                  Xem trang công ty
+                </Link>
+              ) : (
+                <Skeleton variant={"text"} width={"100%"} height={40} />
+              )}
+            </div>
           </div>
         </div>
         <div className="flex flex-wrap -mx-2">
           <div className="w-full px-2 mb-4 lg:w-3/4 lg:mb-0">
-            <div className="info-detail bg-[#FAFAFA] rounded-lg xl:p-6 p-4 mb-6">
-              <div className="flex mb-6 nav-tab-job">
-                <button
-                  className=" tablinks flex-auto font-medium text-[#7d7d7d] 2xl:text-[1.125rem] hover:text-[#DD6B4D] p-2 text-center border-b-[3px] lg:border-b-[5px] relative z-[1] border-solid border-transparent active"
-                  data-electronic="tab-job-1"
-                  data-target="tab-job"
-                >
-                  Mô tả công việc
-                </button>
-                <button
-                  className="tablinks flex-auto font-medium text-[#7d7d7d] 2xl:text-[1.125rem] hover:text-[#DD6B4D] p-2 text-center border-b-[3px] lg:border-b-[5px] relative z-[1] border-solid border-transparent "
-                  data-electronic="tab-job-2"
-                  data-target="tab-job"
-                >
-                  Giới thiệu về công ty
-                </button>
-                <button
-                  className="tablinks flex-auto font-medium text-[#7d7d7d] 2xl:text-[1.125rem] hover:text-[#DD6B4D] p-2 text-center border-b-[3px] lg:border-b-[5px] relative z-[1] border-solid border-transparent hidden"
-                  data-electronic="tab-job-3"
-                  data-target="tab-job"
-                >
-                  Thông tin liên hệ
-                </button>
-              </div>
+            <div className="info-detail bg-white rounded-lg xl:p-6 p-4 mb-6">
               <div className="wrapper-tabcontent">
-                <div
-                  className="tabcontent active"
-                  data-target="tab-job"
-                  id="tab-job-1"
-                >
-                  <div className="s-content">
-                    - Trực tiếp giải quyết các vụ việc hoặc hỗ trợ các Luật sư
-                    và đồng nghiệp trong các lĩnh vực Dân sự, Kinh doanh Thương
-                    mại, Thi hành án, Hành chính, Hình sự, Ly hôn… - Tư vấn các
-                    thủ tục pháp lý về doanh nghiệp - đầu tư, đất đai, đại diện
-                    theo ủy quyền tham gia tố tụng tại Tòa án cho khách hàng; -
-                    Thực hiện các công việc theo sự phân công của Luật sư; -
-                    Công việc cụ thể sẽ được trao đổi chi tiết hơn khi phỏng
-                    vấn.
+                {dataDetail ? (
+                  <div className="border-l-[6px] border-solid border-[#00b14f] text-[#212f3f] text-[1.25rem] font-bold pl-2.5 mb-4">
+                    Chi tiết tin tuyển dụng
                   </div>
-                </div>
-                <div
-                  className="tabcontent"
-                  data-target="tab-job"
-                  id="tab-job-2"
-                >
-                  <div className="xl:mt-8 mt-6 bg-white lg:p-8 p-4 rounded-md shadow-[0px_4px_10px_rgba(0,0,0,.3)]">
-                    <h3 className="font-semibold xl:text-2xl text-lg text-[var(--cl-text-main-2)] uppercase mb-4">
-                      Công ty Luật TNHH Minh Tín
-                    </h3>
-                    <div className="infomation">
-                      <div className="flex flex-wrap md:-mx-2">
-                        <div className="w-full md:w-1/4 px-2 mb-4 md:mb-0">
-                          <div className="c-img pt-[100%] rounded-md overflow-hidden">
-                            <img
-                              loading="lazy"
-                              src="../theme/frontend/images/logo-viet-4.png"
-                              alt="Công ty Luật TNHH Minh Tín"
-                              title="Công ty Luật TNHH Minh Tín"
-                              className="img-fluid"
-                            />
-                          </div>
-                        </div>
-                        <div className="w-full md:w-3/4 px-2 flex">
-                          <div className="flex flex-col flex-1">
-                            <div className="w-full flex flex-wrap info-job xl:mt-8 mt-4 -mx-2">
-                              <div className="w-full md:w-1/2 px-2 lg:pr-10">
-                                <div className="flex items-center mb-5">
-                                  <span
-                                    className="w-6 h-6 inline-block bg-no-repeat shrink-0 bg-contain bg-center"
-                                    style="background-image: url(../theme/frontend/images/icon-website-company.svg);"
-                                  ></span>
-                                  <span className="ml-2 text-[var(--cl-sub-title)] text-sm">
-                                    http://luatminhtin.vn/
-                                  </span>
-                                </div>
-                                <div className="flex items-center mb-5">
-                                  <span
-                                    className="w-6 h-6 inline-block bg-no-repeat shrink-0 bg-contain bg-center"
-                                    style="background-image: url(../theme/frontend/images/icon-address-company.svg);"
-                                  ></span>
-                                  <span className="ml-2 text-[var(--cl-sub-title)] text-sm">
-                                    Tầng 4, Tòa nhà Hà Thành Plaza, số 102 phố
-                                    Thái Thịnh - Phường Trung Liệt - Quận Đống
-                                    đa - Hà Nội.
-                                  </span>
-                                </div>
-                                <div className="flex flex-wrap items-center">
-                                  <div className="flex items-center mr-6 last:mr-0 mb-2">
-                                    <span
-                                      className="w-6 h-6 inline-block bg-no-repeat shrink-0 bg-contain bg-center"
-                                      style="background-image: url(../theme/frontend/images/icon-staff-size.svg);"
-                                    ></span>
-                                    <span className="ml-2 text-[var(--cl-sub-title)] text-sm">
-                                      5
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center mr-6 last:mr-0 mb-2">
-                                    <span
-                                      className="w-6 h-6 inline-block bg-no-repeat shrink-0 bg-contain bg-center"
-                                      style="background-image: url(../theme/frontend/images/icon-posted-company.svg);"
-                                    ></span>
-                                    <span className="ml-2 text-[var(--cl-sub-title)] text-sm">
-                                      5
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center mr-6 last:mr-0 mb-2">
-                                    <span
-                                      className="w-6 h-6 inline-block bg-no-repeat shrink-0 bg-contain bg-center"
-                                      style="background-image: url(../theme/frontend/images/icon-flow-company.svg);"
-                                    ></span>
-                                    <span className="ml-2 text-[var(--cl-sub-title)] text-sm">
-                                      5
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="w-full md:w-1/2 mt-4 md:mt-0 px-2">
-                                <p className="text-[var(--cl-text-main-2)] lg:text-2xl text-lg font-semibold text-left">
-                                  MST: 0104734686
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="s-content mb-4">
-                      MinhTinlaw (tên viết tắt của Công ty Luật TNHH Minh Tín)
-                      hoạt động theo giấy phép số 01070549 / TP / ĐKHĐ do Sở tư
-                      pháp thành phố Hà Nội cấp. Được thành lập và điều hành bởi
-                      các Luật sư có kinh nghiệm chuyên ngành tài chính, bất
-                      động sản, kinh doanh thương mại.
-                      <br />
-                      <br />
-                      Đội ngũ cán bộ nhân viên của Công ty Luật TNHH Minh Tín
-                      chiếm đa số là các luật sư, thạc sỹ luật đã từng làm việc
-                      tại các Công ty Luật nổi tiếng tại Việt Nam và hoặc đã
-                      được trải nghiệm với tư cách là luật sư quản lý, lãnh đạo
-                      tại các tổ chức hành nghề luật. Do đó, chúng tôi tự hào
-                      cung cấp cho khách hàng những giải pháp đã được đúc kết từ
-                      những trải nghiệm thực tế. Đây chính là thế mạnh vượt trội
-                      và sự khác biệt so với các tổ chức tư vấn luật khác tại
-                      Việt Nam.
-                    </div>
+                ) : (
+                  <Skeleton width={"100%"} height={48} />
+                )}
+                {dataDetail?.descriptionJob ? (
+                  <>
+                    {dataDetail.descriptionJob !== "" ? (
+                      <p className="text-[1.125rem] font-semibold mb-2">
+                        Mô tả công việc
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                    <div
+                      className="s-content mb-8 last:mb-0"
+                      dangerouslySetInnerHTML={{
+                        __html: dataDetail.descriptionJob,
+                      }}
+                    ></div>
+                    {dataDetail.candidateRequirement !== "" ? (
+                      <p className="text-[1.125rem] font-semibold mb-2">
+                        Yêu cầu ứng viên
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                    <div
+                      className="s-content mb-8 last:mb-0"
+                      dangerouslySetInnerHTML={{
+                        __html: dataDetail.candidateRequirement,
+                      }}
+                    ></div>
+                    {dataDetail.benefit !== "" ? (
+                      <p className="text-[1.125rem] font-semibold mb-2">
+                        Quyền lợi
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                    <div
+                      className="s-content mb-8 last:mb-0"
+                      dangerouslySetInnerHTML={{
+                        __html: dataDetail.benefit,
+                      }}
+                    ></div>
+                    {dataDetail.timeWork !== "" ? (
+                      <p className="text-[1.125rem] font-semibold mb-2">
+                        Thời gian làm việc
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                    <div
+                      className="s-content mb-8 last:mb-0"
+                      dangerouslySetInnerHTML={{
+                        __html: dataDetail.timeWork,
+                      }}
+                    ></div>
+                  </>
+                ) : (
+                  <Skeleton variant="rectangular" width={"100%"} height={360} />
+                )}
+                {dataDetail ? (
+                  <div className="mb-4">
+                    <p className="text-[1.125rem] font-semibold mb-2">
+                      Cách thức ứng tuyển
+                    </p>
+                    <p>
+                      Ứng viên nộp hồ sơ trực tuyến bằng cách bấm{" "}
+                      <span className="font-bold">Ứng tuyển</span> ngay dưới
+                      đây.
+                    </p>
                   </div>
-                </div>
-                <div
-                  className="tabcontent"
-                  data-target="tab-job"
-                  id="tab-job-3"
-                >
-                  <p className="title font-bold text-[#000] text-[1.25rem] mb-1">
-                    Thông tin liên hệ
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={40} />
+                )}
+                {dataDetail?.expirationDate ? (
+                  <p className="mb-4">
+                    Hạn nộp hồ sơ:{" "}
+                    {dayjs(dataDetail.expirationDate.toDate()).format(
+                      "DD/MM/YYYY"
+                    )}
                   </p>
-                  <ul className="info_contact_post">
-                    <li>
-                      <span>Người tuyển dụng:</span>
-                      <strong></strong>
-                    </li>
-                    <li>
-                      <span>Email tuyển dụng:</span>
-                      <strong></strong>
-                    </li>
-                    <li>
-                      <span>Điện thoại tuyển dụng:</span>
-                      <strong></strong>
-                    </li>
-                    <li>
-                      <span>Địa chỉ tuyển dụng:</span>
-                      <strong></strong>
-                    </li>
-                  </ul>
-                </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={40} />
+                )}
+
+                {dataDetail ? (
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      onClick={() => {
+                        if (!handleCheckApplyJob) {
+                          handleApplyJob(dataDetail?.id, dataEmployer?.id);
+                        }
+                      }}
+                      disabled={hasApplied}
+                      variant="contained"
+                      sx={{
+                        backgroundColor: "#00b14f",
+                        textTransform: "none",
+
+                        transition: "all 0.5s",
+                        "&:hover": {
+                          backgroundColor: "#009643",
+                        },
+                      }}
+                    >
+                      {hasApplied ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        color: "#00b14f",
+                        textTransform: "none",
+                        borderColor: "#99e0b9",
+                        transition: "all 0.5s",
+                        "&:hover": {
+                          borderColor: "#00b14f",
+                          color: "#00b14f",
+                        },
+                      }}
+                    >
+                      {isLoading ? (
+                        <CircularProgress size={24} sx={{ color: "#00b14f" }} />
+                      ) : hasLiked ? (
+                        <>Đã lưu tin</>
+                      ) : (
+                        <>Lưu tin</>
+                      )}
+                    </Button>
+                  </Stack>
+                ) : (
+                  <Stack direction="row" spacing={2}>
+                    <Skeleton variant="text" width={160} height={40} />
+                    <Skeleton variant="text" width={120} height={40} />
+                  </Stack>
+                )}
               </div>
             </div>
           </div>
           <div className="w-full px-2 lg:w-1/4">
-            <div className="info-detail__sidebar bg-[#FAFAFA] rounded-lg">
-              <p className="head lg:p-6 p-4 text-[#1C4B82] lg:text-[1.125rem] font-bold border-b-[1px] border-solid border-[#A8A8A8]">
-                Thông tin thêm về công việc
+            <div className="info-detail__sidebar bg-white rounded-lg">
+              <p className="head p-3 text-center lg:text-[1.125rem] font-bold border-b-[1px] border-solid border-[#A8A8A8]">
+                {dataDetail ? (
+                  "Thông tin chung"
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={40} />
+                )}
               </p>
-              <div className="p-4 content lg:p-6">
-                <div className="mb-5 item last:mb-0">
-                  <p className="title font-bold text-[#000] mb-2">
-                    Nơi làm việc
-                  </p>
-
-                  <p className="font-medium lg:text-[0.875rem] text-[#000]">
-                    Bình Phước
-                  </p>
-                </div>
-                <div className="mb-5 item last:mb-0">
-                  <p className="title font-bold text-[#000] mb-2">Cấp bậc</p>
-                  <p className="font-medium lg:text-[0.875rem] text-[#000]">
-                    Phó giám đốc
-                  </p>
-                </div>
-                <div className="mb-5 item last:mb-0">
-                  <p className="title font-bold text-[#000] mb-2">Ngành nghề</p>
-                  <p className="font-medium lg:text-[0.875rem] text-[#000]">
-                    Luật sư
-                  </p>
-                </div>
-                <div className="mb-5 item last:mb-0">
-                  <p className="title font-bold text-[#000] mb-2">Kỹ năng</p>
-                  <p className="font-medium lg:text-[0.875rem] text-[#000]"></p>
-                </div>
+              <div className="p-4 content">
+                {dataDetail?.levelJob && levelJobName ? (
+                  <div className="flex items-center mb-4">
+                    <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                      <GradeIcon
+                        sx={{
+                          color: "#ffffff",
+                          fontSize: "1.25rem",
+                          width: "1.75rem",
+                          height: "1.75rem",
+                        }}
+                      />
+                    </span>
+                    <div className="">
+                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                        Cấp bậc
+                      </p>
+                      <p className="text-[1rem] font-semibold text-[#000] flex items-center">
+                        {levelJobName}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
+                {dataDetail?.experienceJob ? (
+                  <div className="flex items-center mb-4">
+                    <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                      <WorkIcon
+                        sx={{
+                          color: "#ffffff",
+                          fontSize: "1.25rem",
+                          width: "1.75rem",
+                          height: "1.75rem",
+                        }}
+                      />
+                    </span>
+                    <div className="">
+                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                        Kinh nghiệm
+                      </p>
+                      <p className="text-[1rem] font-semibold text-[#000] flex items-center">
+                        {experienceJobName}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
+                {dataDetail?.quantity ? (
+                  <div className="flex items-center mb-4">
+                    <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                      <PeopleIcon
+                        sx={{
+                          color: "#ffffff",
+                          fontSize: "1.25rem",
+                          width: "1.75rem",
+                          height: "1.75rem",
+                        }}
+                      />
+                    </span>
+                    <div className="">
+                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                        Số lượng
+                      </p>
+                      <p className="text-[1rem] font-semibold text-[#000] flex items-center">
+                        {dataDetail.quantity}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
+                {dataDetail?.workplace ? (
+                  <div className="flex items-center mb-4">
+                    <span className="mr-3 bg-[#00bf5d] inline-block p-2 rounded-full">
+                      <WorkHistoryIcon
+                        sx={{
+                          color: "#ffffff",
+                          fontSize: "1.25rem",
+                          width: "1.75rem",
+                          height: "1.75rem",
+                        }}
+                      />
+                    </span>
+                    <div className="">
+                      <p className="text-[0.875rem] font-medium text-[#000] flex items-center">
+                        Hình thức làm việc
+                      </p>
+                      <p className="text-[1rem] font-semibold text-[#000] flex items-center">
+                        {dataDetail.workplace}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Skeleton variant="text" width={"100%"} height={48} />
+                )}
               </div>
             </div>
           </div>

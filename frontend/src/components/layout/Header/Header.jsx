@@ -87,10 +87,10 @@ const Header = () => {
               </Link>
               <Link
                 to={"/thong-tin-tai-khoan"}
-                title={userDetail?.name}
+                title={userDetail?.fullName}
                 className="name-user hidden text-white ml-2 lg:block font-semibold"
               >
-                {userDetail?.name}
+                {userDetail?.fullName}
               </Link>
               <i className="fa-solid fa-angle-down text-white ml-2"></i>
 

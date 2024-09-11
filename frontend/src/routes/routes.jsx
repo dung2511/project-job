@@ -20,6 +20,7 @@ import CreatePost from "../pages/Accounts/Employers/CreatePost";
 import Contact from "../pages/Contact/Contact";
 import DetailRecruitment from "../pages/Recruitment/DetailRecruitment";
 import EditorPost from "../pages/Accounts/Employers/EditorPost";
+import PageNotFound from "../pages/PageNotFound/PageNotFound";
 
 const publicRoutes = [
   {
@@ -73,6 +74,10 @@ const publicRoutes = [
   {
     path: "/dang-ky",
     component: Register,
+  },
+  {
+    path: "*",
+    component: PageNotFound,
   },
 ];
 

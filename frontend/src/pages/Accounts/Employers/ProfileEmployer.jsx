@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, firestore } from "../../../firebase.config";
 import { doc, getDoc } from "firebase/firestore";
 import SidebarEmployer from "../../../components/layout/SidebarEmployer";
-import { Box, CircularProgress, Tab, Tabs } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import FormUpdateAccount from "./Components/FormUpdateAccount";
@@ -64,13 +64,6 @@ const ProfileEmployer = () => {
   useEffect(() => {
     fetchEmployerData();
   }, []);
-  if (!employerDetail) {
-    return (
-      <Box className="flex items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
   return (
     <section className="mt-4 bg-[#F0F0F3]">
       <div className="container">
@@ -95,10 +88,10 @@ const ProfileEmployer = () => {
               </Tabs>
             </Box>
             <CustomTabPanel value={value} index={0}>
-              <FormUpdateAccount employerDetail={employerDetail} />
+              <FormUpdateAccount />
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
-              <FormUpdateCompany employerDetail={employerDetail} />
+              <FormUpdateCompany />
             </CustomTabPanel>
           </div>
         </div>

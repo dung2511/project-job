@@ -51,7 +51,7 @@ const FormLoginEmployer = () => {
         });
       }
     } catch (error) {
-      toast.error("Tài khoản hoặc mật khẩu không chính xác !!", {
+      toast.error(error.message, {
         position: "top-right",
       });
     }

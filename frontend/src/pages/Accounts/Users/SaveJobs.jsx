@@ -1,5 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SidebarUser from "../../../components/layout/SidebarUser";
+import { auth, firestore } from "../../../firebase.config";
+import { doc, getDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const SaveJobs = () => {
   return (

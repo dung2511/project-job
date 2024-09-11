@@ -5,6 +5,7 @@ import "./assets/css/add.css";
 import "./assets/css/style.css";
 import './index.css';
 import "swiper/css"
+import 'react-loading-skeleton/dist/skeleton.css'
 import { privateRoutes, publicRoutes } from './routes/routes';
 import DefaultLayout from './components/layout/DefaultLayout';
 import { ToastContainer } from 'react-toastify';

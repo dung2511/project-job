@@ -1,23 +1,39 @@
-import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { auth, firestore } from "../../firebase.config";
 import { NavLink, useNavigate } from "react-router-dom";
+import { Avatar, Skeleton } from "@mui/material";
+import { doc, getDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
-
+const initialState = {
+  fullName: "",
+  avatar: "",
+};
 const SidebarUser = () => {
-  const [userDetail, setUserDetail] = useState(null);
   const navigate = useNavigate();
+  const [data, setData] = useState(initialState);
+  const { fullName, avatar } = data;
   const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
       if (user != null) {
         const docRef = doc(firestore, "Users", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setUserDetail(docSnap.data());
+          setData({ ...docSnap.data() });
         }
+      } else {
+        toast.error("Vui lòng đăng nhập tài khoản ứng viên", {
+          position: "top-right",
+        });
+        navigate("/");
       }
     });
   };
+  
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+  const urlImageUserDefault =
+    "https://firebasestorage.googleapis.com/v0/b/website-job-21a07.appspot.com/o/Images%2Fuser_profile_default.png?alt=media&token=e0db52f4-0be5-42a2-a1be-c40da07929c1";
   async function handleLogout() {
     try {
       await auth.signOut();
@@ -28,21 +44,37 @@ const SidebarUser = () => {
       console.log(error.message);
     }
   }
-  useEffect(() => {
-    fetchUserData();
-  }, []);
   return (
     <>
       <aside className="lg:px-2 lg:w-1/4 sidebar-account fixed lg:static">
         <div className="info-management bg-[#f7f7f7] rounded-lg xl:p-6 p-4">
-          <div className="box-avatar max-w-[16.688rem] mx-auto">
-            <div className="avatar c-img pt-[100%] img-cover overflow-hidden rounded mb-2 ">
-              <img src="../../../theme/frontend/images/user_profile_default.png" />
-            </div>
-          </div>
-          <p className="name text-center font-semibold text-[#000]">
-            {userDetail?.fullName}
-          </p>
+          {data ? (
+            <Avatar
+              className="avatar w-full h-full mx-auto img-cover overflow-hidden rounded mb-2 "
+              alt={fullName}
+              src={urlImageUserDefault}
+              sx={{ width: 150, height: 150 }}
+            />
+          ) : (
+            <Skeleton
+              className="mx-auto"
+              variant={"circular"}
+              width={150}
+              height={150}
+            />
+          )}
+          {Object.keys(data).length > 0 ? (
+            <p className="name text-center font-semibold text-[#000]">
+              {fullName}
+            </p>
+          ) : (
+            <Skeleton
+              variant="text"
+              width={"100%"}
+              height={40}
+              className="mx-auto"
+            />
+          )}
           <div className="menu-info mt-6">
             <ul>
               <li>
