@@ -12,8 +12,13 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Button,
+  Avatar,
 } from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import {
+  queryCityById,
+  timeAgo,
   useFetchCareerJob,
   useFetchCity,
   useFetchLevelJob,
@@ -54,8 +59,6 @@ const Recruitment = () => {
         conditions.push(where("workJob", "==", selectCity));
       }
       const q = query(collection(firestore, "Posts"), ...conditions);
-      console.log(q);
-
       const querySnapshot = await getDocs(q);
 
       const data = querySnapshot.docs.map((doc) => ({
@@ -63,8 +66,8 @@ const Recruitment = () => {
         ...doc.data(),
       }));
       if (textJob !== "") {
-        data = data.filter(
-          (doc) => doc.positionJob.toLowerCase().includes(textJob.toLowerCase())
+        data = data.filter((doc) =>
+          doc.positionJob.toLowerCase().includes(textJob.toLowerCase())
         );
       }
       setListData(data);
@@ -72,6 +75,22 @@ const Recruitment = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+  const queryCityPost = async () => {
+    try {
+      if (listData) {
+        const cityPost = await Promise.all(
+          listData.map(async (recruitment) => {
+            const cityName = await queryCityById(recruitment.workJob);
+            return {
+              ...recruitment,
+              cityName,
+            };
+          })
+        );
+        setListData(cityPost);
+      }
+    } catch (error) {}
   };
   const getDataSearch = () => {
     const queryParams = new URLSearchParams(location.search);
@@ -93,7 +112,8 @@ const Recruitment = () => {
   }, [location]);
   useEffect(() => {
     fetchDataRecruitment();
-  }, []);
+    queryCityPost();
+  }, [listData]);
   if (loading) {
     return (
       <Box className="flex items-center justify-center">
@@ -325,8 +345,8 @@ const Recruitment = () => {
                 <div className="head-title-all leading-[1.3] border-l-[5px] border-solid border-[#DD6B4D] pl-4 font-bold 2xl:text-[1.5rem] xl:text-[1.25rem] text-[1rem]">
                   <span className="text-[var(--cl-blue)]">
                     Tìm thấy
-                    <span className="count-post text-[var(--cl-orange)]">
-                      1546
+                    <span className="count-post text-[var(--cl-orange)] px-2">
+                      {listData.length}
                     </span>
                     việc làm
                   </span>
@@ -346,66 +366,53 @@ const Recruitment = () => {
                     return (
                       <div
                         key={index}
-                        className="item-filter block md:flex flex-wrap bg-[#F7F7F7] border border-solid border-[#A8A8A8] rounded-lg xl:px-5 xl:py-6 p-4 mb-4 relative"
+                        className="item-filter block md:flex flex-wrap bg-[#f2fbf6] border border-solid border-[#A8A8A8] rounded-lg p-3 mb-4 relative"
                       >
-                        <div className="flex-1 items-center block mb-4 sm:flex md:mr-6 md:mb-0">
-                          <div className="avatar w-full sm:w-[110px] shrink-0 sm:mr-4 mb-2 sm:mb-0">
-                            <div className="img c-img pt-[100%] rounded overflow-hidden">
-                              <img
-                                loading="lazy"
-                                src={item.avatar}
-                                alt={item.positionJob}
-                                title={item.positionJob}
-                                className="img-fluid"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex-1 info-content">
-                            <p className="name font-semibold text-[#000] text-[0.875rem] mb-2">
-                              {item.positionJob}
-                            </p>
-                            <p className="company text-[#7d7d7d] text-[.875rem] mb-2">
-                              {item.nameCompany}
-                            </p>
-                            <ul className="flex flex-wrap lis-info__detail ">
-                              <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
-                                <i className="mr-1 fa-regular fa-user"></i>
-                                Vị trí: {item.levelJob}
-                              </li>
-                              <li className="flex items-center text-[#000] lg:text-[0.875rem] mr-4 last:mr-0 mb-4">
-                                <i className="fa-regular fa-file-lines mr-1"></i>
-                                Kinh nghiệm: {item.experienceJob}
-                              </li>
-                            </ul>
-                            <div className="flex flex-wrap work-position">
-                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                                {convertSalary(item.minSalary)} -{" "}
-                                {convertSalary(item.maxSalary)}
-                              </div>
-                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                                <span>{item.workJob}</span>
-                              </div>
-                              <div className="item mr-2 mb-2 text-[#000] text-[0.875rem] bg-[rgba(28,75,130,.2)] rounded-3xl py-2 px-4">
-                                {item.timeCreated.seconds}
+                        <div className="flex-1 block mb-4 sm:flex md:mr-6 md:mb-0">
+                          <Avatar
+                            className="avatar w-full shrink-0 mb-2 sm:mb-0 border border-solid border-[#e9eaec] sm:w-[7.5rem] !rounded p-2"
+                            alt={item.positionJob}
+                            src={item.avatar}
+                            sx={{ width: 112, height: 112, borderRadius: "8px" }}
+                          />
+                          <div className="w-full sm:w-5/6 sm:pl-4 ">
+                            <div className="flex flex-col h-full">
+                              <p className="name font-semibold line-clamp-2 text-[#212f3f] text-[1rem] mb-2">
+                                {item.positionJob}
+                              </p>
+                              <p className="company text-[#424e5c] text-[.875rem] mb-2 line-clamp-1">
+                                {item.nameCompany}
+                              </p>
+                              <div className="flex flex-wrap mt-auto">
+                                <div className="bg-[#e9eaec] rounded text-[#212f3f] px-2 py-1 mr-2 last:mr-0 text-[0.75rem] font-medium">
+                                  {convertSalary(item.minSalary)} -{" "}
+                                  {convertSalary(item.maxSalary)}
+                                </div>
+                                <div className="bg-[#e9eaec] rounded text-[#212f3f] px-2 py-1 mr-2 last:mr-0 text-[0.75rem] font-medium">
+                                  <span>{item.cityName}</span>
+                                </div>
+                                <div className="bg-[#e9eaec] rounded text-[#212f3f] px-2 py-1 mr-2 last:mr-0 text-[0.75rem] font-medium">
+                                  {timeAgo(item.timeCreated.seconds)}
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <Link
-                          to={`/tuyen-dung/${item.slug}`}
-                          title="Xem chi tiết"
-                          className="btn btn-view mt-auto py-2 font-medium rounded border border-solid border-[#1C4B82] text-[#1C4B82] bg-[#DBECFF] hover:bg-[#1C4B82] hover:text-white shrink-0"
-                        >
-                          Xem chi tiết
-                        </Link>
-                        <Link
-                          to={"/"}
-                          title="Yêu thích"
-                          favourite-user=""
-                          className="btn-favourite  absolute z-[1] xl:top-6 xl:right-5 top-4 right-4 text-[#000] text-[1.25rem]"
-                        >
-                          <i className="fa-regular fa-bookmark"></i>
-                        </Link>
+                        <div className="flex items-end">
+                          <Link
+                            to={`/tuyen-dung/${item.slug}`}
+                            title="Ứng tuyển"
+                            className="px-3 py-1.5 rounded border font-semibold text-[0.75rem] border-solid border-transparent text-[#fff] bg-[#00b14f] hover:bg-[#009643] hover:text-white"
+                          >
+                            Ứng tuyển
+                          </Link>
+                          <Button
+                            title="Yêu thích"
+                            className="text-[#000] text-[1.25rem]"
+                          >
+                            <FavoriteBorderIcon />
+                          </Button>
+                        </div>
                       </div>
                     );
                   })}

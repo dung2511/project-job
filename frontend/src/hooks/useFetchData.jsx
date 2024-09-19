@@ -166,3 +166,39 @@ export const useFetchSalary = () => {
   }, []);
   return { salary };
 };
+export const queryCityById = async (cityId) => {
+  try {
+    const cityDoc = await getDoc(doc(firestore, "cities", cityId));
+    if (cityDoc.exists()) {
+      return cityDoc.data().name;
+    } else {
+      return "Unknown city";
+    }
+  } catch (error) {
+    console.error("Error fetching city:", error);
+    return "Error fetching city";
+  }
+};
+export const timeAgo = (seconds) => {
+  const timeNow = Date.now();
+  const timeCreated = seconds * 1000;
+
+  const timeDifference = timeNow - timeCreated;
+
+  const secondsAgo = Math.floor(timeDifference / 1000);
+  const minutesAgo = Math.floor(secondsAgo / 60);
+  const hoursAgo = Math.floor(minutesAgo / 60);
+  const daysAgo = Math.floor(hoursAgo / 24);
+
+  if (secondsAgo < 60) {
+    return `Cập nhật ${secondsAgo} giây trước`;
+  } else if (minutesAgo < 60) {
+    return `Cập nhật ${minutesAgo} phút trước`;
+  } else if (hoursAgo < 24) {
+    return `Cập nhật ${hoursAgo} giờ trước`;
+  } else if (daysAgo < 30) {
+    return `Cập nhật ${daysAgo} ngày trước`;
+  } else {
+    return `Hơn 1 tháng trước`;
+  }
+};

@@ -1,6 +1,6 @@
 import React from "react";
 
-const PersonalIncomeTaxCalculator = () => {
+const SuperiorToolDetail = () => {
   return (
     <section
       className="section-taxpersonal py-8 bg-no-repeat bg-right-top"
@@ -244,4 +244,4 @@ const PersonalIncomeTaxCalculator = () => {
   );
 };
 
-export default PersonalIncomeTaxCalculator;
+export default SuperiorToolDetail;

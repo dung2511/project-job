@@ -24,13 +24,13 @@ const listMenu = [
     subMenu: [
       {
         id: 1,
-        title: "Công cụ tính lương Gross/Net",
-        link: "/tien-ich/cong-cu-tinh-luong-gross-net",
+        title: "Tính lương GROSS - NET",
+        link: "/tien-ich/tinh-luong-gross-net",
       },
       {
         id: 2,
-        title: "Công cụ tính thuế TNCN",
-        link: "/tien-ich/cong-cu-tinh-thue-tncn",
+        title: "Tính thuế thu nhập cá nhân",
+        link: "/tien-ich/tinh-thue-thu-nhap-ca-nhan",
       },
     ],
   },

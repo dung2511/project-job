@@ -40,7 +40,7 @@ body {
   overflow-x: hidden;
   font-family: "Inter", sans-serif;
   font-size: 14px;
-  background-color: #f4f5f5;
+  background-color: #ffffff;
 }
 .container {
   width: 100%;
@@ -648,7 +648,7 @@ strong {
 }
 @media (min-width: 1536px) {
   .container {
-    max-width: 1400px !important;
+    max-width: 1320px !important;
   }
 }
 @media (max-width: 1651px) {

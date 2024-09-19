@@ -75,12 +75,12 @@ const FormUpdateCompany = () => {
   };
 
   const handleImageUpload = async () => {
-    if (imageCompany == null) return;
+    if (file == null) return;
     const storageRef = ref(
       storage,
-      `Employers/` + v4() + `${imageCompany.name}`
+      `Employers/` + v4() + `${file.name}`
     );
-    const snapshot = await uploadBytes(storageRef, imageCompany);
+    const snapshot = await uploadBytes(storageRef, file);
     const url = await getDownloadURL(snapshot.ref);
     return url;
   };

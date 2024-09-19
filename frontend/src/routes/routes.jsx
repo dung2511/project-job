@@ -6,8 +6,7 @@ import AllNews from "../pages/News/AllNews";
 import NewsDetail from "../pages/News/NewsDetail";
 import ListCandidate from "../pages/Accounts/Employers/CandidateManagement";
 import DetailCandidate from "../pages/Candidate/DetailCandidate";
-import GrossToNetSalaryCalculator from "../pages/Extension/GrossToNetSalaryCalculator";
-import PersonalIncomeTaxCalculator from "../pages/Extension/PersonalIncomeTaxCalculator";
+import SuperiorToolDetail from "../pages/Extension/SuperiorToolDetail";
 import Services from "../pages/Services/Services";
 import ProfileUser from "../pages/Accounts/Users/ProfileUser";
 import ChangePassword from "../pages/Accounts/Users/ChangePassword";
@@ -52,12 +51,8 @@ const publicRoutes = [
     component: DetailCandidate,
   },
   {
-    path: "/tien-ich/cong-cu-tinh-luong-gross-net",
-    component: GrossToNetSalaryCalculator,
-  },
-  {
-    path: "/tien-ich/cong-cu-tinh-thue-tncn",
-    component: PersonalIncomeTaxCalculator,
+    path: "/tien-ich/:slug",
+    component: SuperiorToolDetail,
   },
   {
     path: "/dich-vu",

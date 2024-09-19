@@ -523,9 +523,6 @@ a:focus {
   }
 }
 @media (min-width: 1280px) {
-  .slide-company .swiper-slide-active .item-company {
-    transform: translateY(-60px);
-  }
   .btn-dropdown-menu {
     position: absolute;
     top: 50%;
@@ -584,4 +581,15 @@ a:focus {
       #284d7f 100%
     );
   }
+}
+.top-company__label::before {
+  background: #fff;
+  border-top-right-radius: 5px;
+  content: "";
+  height: 21px;
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+  width: 21px;
 }
