@@ -44,10 +44,10 @@ const SuperiorTool = () => {
           Công cụ vượt trội!
         </h2>
         <div
-          class="superior-tool__content grid items-center bg-center bg-no-repeat bg-[length:340px_387px] gap-[5%_35%] grid-cols-[repeat(2,2fr)] justify-between py-[3.25rem]"
+          className="superior-tool__content grid items-center bg-center bg-no-repeat bg-[length:340px_387px] gap-[5%_35%] grid-cols-[repeat(2,2fr)] justify-between py-[3.25rem]"
           style={{ backgroundImage: `url(${urlBgSuperiorTool})` }}
         >
-          <div class="content__session">
+          <div className="content__session">
             {listSuperiorTool?.slice(0, 3).map((item) => {
               return (
                 <Link
@@ -55,10 +55,10 @@ const SuperiorTool = () => {
                   to={"/tien-ich/" + item.slug}
                   className="flex items-center w-fit p-4 mt-8 gap-3 shadow-[0_7px_16px_rgba(0,0,0,.03)] bg-white rounded-[0.625rem]"
                 >
-                  <div class=" w-12 h-12">
-                    <img class="lazy w-full" alt="" src={item.icon} />
+                  <div className=" w-12 h-12">
+                    <img className="lazy w-full" alt="" src={item.icon} />
                   </div>
-                  <div class="title">
+                  <div className="title">
                     <h3>{item.name}</h3>
                     <span className="text-[#00b14f] text-[0.75rem] font-normal">
                       Khám phá ngay
@@ -75,7 +75,7 @@ const SuperiorTool = () => {
               );
             })}
           </div>
-          <div class="content__session">
+          <div className="content__session">
             {listSuperiorTool?.slice(3, 6).map((item) => {
               return (
                 <Link
@@ -83,12 +83,12 @@ const SuperiorTool = () => {
                   to={"/tien-ich/" + item.slug}
                   className="flex items-center ml-auto w-fit p-4 mt-8 gap-3 shadow-[0_7px_16px_rgba(0,0,0,.03)] bg-white rounded-[0.625rem]"
                 >
-                  <div class=" w-12 h-12">
-                    <img class="lazy w-full" alt="" src={item.icon} />
+                  <div className=" w-12 h-12">
+                    <img className="lazy w-full" alt="" src={item.icon} />
                   </div>
-                  <div class="title">
+                  <div className="title">
                     <h3>{item.name}</h3>
-                    <span>
+                    <span className="text-[#00b14f] text-[0.75rem] font-normal">
                       Khám phá ngay
                       <ArrowForwardIcon
                         sx={{

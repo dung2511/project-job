@@ -257,7 +257,7 @@ const DetailRecruitment = () => {
   }, [slug]);
 
   return (
-    <section className="py-6 xl:py-10 section-job__detail">
+    <section className="py-6 xl:py-10 section-job__detail bg-[#f4f5f5]">
       <div className="container">
         <div className="flex flex-wrap mb-6 -mx-2">
           <div className="w-full px-2 mb-4 lg:w-3/4 lg:mb-0">

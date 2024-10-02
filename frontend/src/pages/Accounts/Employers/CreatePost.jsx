@@ -228,7 +228,8 @@ const CreatePost = () => {
         expirationDate: expirationDate ? expirationDate.toDate() : new Date(),
         quantity: quantity || 0,
         workplace: workplace || "",
-        nameComapny: employerDetail.nameComapny
+        nameComapny: employerDetail.nameComapny,
+        avatar: employerDetail.imageCompany,
       };
       await addDoc(collection(firestore, "Posts"), {
         employerId: user.uid,

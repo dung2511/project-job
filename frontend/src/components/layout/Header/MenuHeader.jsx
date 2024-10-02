@@ -9,17 +9,12 @@ const listMenu = [
   },
   {
     id: 2,
-    title: "Danh sách ứng viên",
-    link: "/danh-sach-ung-vien",
+    title: "Công ty",
+    link: "/cong-ty",
   },
   {
     id: 3,
-    title: "Tin tức",
-    link: "/tin-tuc",
-  },
-  {
-    id: 4,
-    title: "Tiện ích",
+    title: "Công cụ",
     link: "/",
     subMenu: [
       {
@@ -29,15 +24,35 @@ const listMenu = [
       },
       {
         id: 2,
+        title: "Tính lãi suất kép",
+        link: "/tien-ich/tinh-lai-kep",
+      },
+      {
+        id: 3,
         title: "Tính thuế thu nhập cá nhân",
         link: "/tien-ich/tinh-thue-thu-nhap-ca-nhan",
+      },
+      {
+        id: 4,
+        title: "Tính Bảo hiểm thất nghiệp",
+        link: "/tien-ich/cong-cu-tinh-muc-huong-bao-hiem-that-nghiep",
+      },
+      {
+        id: 5,
+        title: "Lập kế hoạch tiết kiệm",
+        link: "/tien-ich/lap-ke-hoach-tiet-kiem",
+      },
+      {
+        id: 6,
+        title: "Tính bảo hiểm xã hội một lần",
+        link: "/tien-ich/tinh-bao-hiem-xa-hoi-mot-lan",
       },
     ],
   },
   {
-    id: 5,
-    title: "Dịch vụ",
-    link: "/dich-vu",
+    id: 4,
+    title: "Tin tức",
+    link: "/tin-tuc",
   },
   {
     id: 6,

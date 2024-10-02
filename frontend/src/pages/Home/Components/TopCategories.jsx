@@ -1,4 +1,10 @@
-import { collection, onSnapshot, orderBy, query, startAt } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  startAt,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { firestore } from "../../../firebase.config";
 
@@ -39,11 +45,11 @@ const TopCategories = () => {
           {listCategories &&
             listCategories.map((item) => {
               return (
-                <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 md:px-2 mb-4">
-                  <div
-                    key={item.id}
-                    className="bg-[#f3f5f7] h-full min-h-[11.5rem] items-center p-6 rounded-[0.75rem] border border-solid border-transparent flex flex-col transition-all duration-500 hover:border-[#33c172] hover:shadow-[0_10px_30px_rgba(14,166,59,.2)] hover:bg-white"
-                  >
+                <div
+                  className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 md:px-2 mb-4"
+                  key={item.id}
+                >
+                  <div className="bg-[#f3f5f7] h-full min-h-[11.5rem] items-center p-6 rounded-[0.75rem] border border-solid border-transparent flex flex-col transition-all duration-500 hover:border-[#33c172] hover:shadow-[0_10px_30px_rgba(14,166,59,.2)] hover:bg-white">
                     <div className="w-[6.25rem] h-[6.25rem]">
                       <img
                         loading="lazy"
