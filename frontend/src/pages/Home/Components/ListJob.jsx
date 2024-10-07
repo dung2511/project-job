@@ -72,7 +72,7 @@ const ListJob = () => {
                   >
                     <div className="flex-1 block mb-4 sm:flex md:mr-6 md:mb-0">
                       <Avatar
-                        className="avatar w-full shrink-0 mb-2 sm:mb-0 sm:w-[7.5rem] !rounded"
+                        className="avatar w-full shrink-0 img-contain mb-2 sm:mb-0 sm:w-[7.5rem] !rounded"
                         alt={item.positionJob}
                         src={item.avatar}
                         sx={{ width: 78, height: 78, borderRadius: "8px" }}

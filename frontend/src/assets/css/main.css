@@ -497,7 +497,8 @@ ul.breacrumb li:not(:last-child)::after {
 .menu ul li {
   position: relative;
 }
-.menu ul li a {
+.menu ul li a,
+.menu ul li span {
   padding: 0.5rem;
   font-size: 0.875rem;
 }
@@ -703,7 +704,8 @@ strong {
   .over-lay.show {
     right: 0;
   }
-  .menu ul li a {
+  .menu ul li a,
+  .menu ul li span  {
     display: block;
     padding: 12px 15px;
     font-size: 16px;
