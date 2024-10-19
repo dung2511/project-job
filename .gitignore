@@ -10,7 +10,7 @@ node_modules
 
 # testing
 /coverage
-
+/.env
 # production
 /build
 src/firebase.config.js
